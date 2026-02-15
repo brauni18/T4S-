@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router';
 
 interface League {
   name: string;
   emoji?: string;
+  slug: string; // URL slug for navigation
 }
 
 interface SportCategory {
@@ -17,73 +19,73 @@ const SPORTS_CATEGORIES: SportCategory[] = [
     name: 'Football (Soccer)',
     icon: '⚽',
     leagues: [
-      { name: 'FIFA World Cup 2026', emoji: '🏆' },
-      { name: 'UEFA Champions League', emoji: '🌟' },
-      { name: 'Premier League', emoji: '🏴' },
-      { name: 'La Liga', emoji: '🇪🇸' },
-      { name: 'Serie A', emoji: '🇮🇹' },
-      { name: 'Bundesliga', emoji: '🇩🇪' },
-      { name: 'Ligue 1', emoji: '🇫🇷' },
-      { name: 'MLS', emoji: '🇺🇸' },
+      { name: 'FIFA World Cup 2026', emoji: '🏆', slug: 'fifa-world-cup-2026' },
+      { name: 'UEFA Champions League', emoji: '🌟', slug: 'uefa-champions-league' },
+      { name: 'Premier League', emoji: '🏴', slug: 'premier-league' },
+      { name: 'La Liga', emoji: '🇪🇸', slug: 'la-liga' },
+      { name: 'Serie A', emoji: '🇮🇹', slug: 'serie-a' },
+      { name: 'Bundesliga', emoji: '🇩🇪', slug: 'bundesliga' },
+      { name: 'Ligue 1', emoji: '🇫🇷', slug: 'ligue-1' },
+      { name: 'MLS', emoji: '🇺🇸', slug: 'mls' },
     ],
   },
   {
     name: 'Basketball',
     icon: '🏀',
     leagues: [
-      { name: 'NBA', emoji: '🇺🇸' },
-      { name: 'EuroLeague', emoji: '🇪🇺' },
-      { name: 'FIBA World Cup', emoji: '🏆' },
+      { name: 'NBA', emoji: '🇺🇸', slug: 'nba' },
+      { name: 'EuroLeague', emoji: '🇪🇺', slug: 'euroleague' },
+      { name: 'FIBA World Cup', emoji: '🏆', slug: 'fiba-world-cup' },
     ],
   },
   {
     name: 'American Football',
     icon: '🏈',
     leagues: [
-      { name: 'NFL', emoji: '🇺🇸' },
-      { name: 'College Football', emoji: '🎓' },
+      { name: 'NFL', emoji: '🇺🇸', slug: 'nfl' },
+      { name: 'College Football', emoji: '🎓', slug: 'college-football' },
     ],
   },
   {
     name: 'Baseball',
     icon: '⚾',
     leagues: [
-      { name: 'MLB', emoji: '🇺🇸' },
-      { name: 'World Baseball Classic', emoji: '🏆' },
+      { name: 'MLB', emoji: '🇺🇸', slug: 'mlb' },
+      { name: 'World Baseball Classic', emoji: '🏆', slug: 'world-baseball-classic' },
     ],
   },
   {
     name: 'Tennis',
     icon: '🎾',
     leagues: [
-      { name: 'Grand Slams', emoji: '🏆' },
-      { name: 'ATP Tour', emoji: '🎾' },
-      { name: 'WTA Tour', emoji: '🎾' },
+      { name: 'Grand Slams', emoji: '🏆', slug: 'grand-slams' },
+      { name: 'ATP Tour', emoji: '🎾', slug: 'atp-tour' },
+      { name: 'WTA Tour', emoji: '🎾', slug: 'wta-tour' },
     ],
   },
   {
     name: 'Hockey',
     icon: '🏒',
     leagues: [
-      { name: 'NHL', emoji: '🇺🇸' },
-      { name: 'IIHF World Championship', emoji: '🏆' },
+      { name: 'NHL', emoji: '🇺🇸', slug: 'nhl' },
+      { name: 'IIHF World Championship', emoji: '🏆', slug: 'iihf-world-championship' },
     ],
   },
   {
     name: 'Rugby',
     icon: '🏉',
     leagues: [
-      { name: 'Rugby World Cup', emoji: '🏆' },
-      { name: 'Six Nations', emoji: '🇪🇺' },
+      { name: 'Rugby World Cup', emoji: '🏆', slug: 'rugby-world-cup' },
+      { name: 'Six Nations', emoji: '🇪🇺', slug: 'six-nations' },
     ],
   },
   {
     name: 'Cricket',
     icon: '🏏',
     leagues: [
-      { name: 'ICC Cricket World Cup', emoji: '🏆' },
-      { name: 'IPL', emoji: '🇮🇳' },
-      { name: 'The Ashes', emoji: '🇬🇧' },
+      { name: 'ICC Cricket World Cup', emoji: '🏆', slug: 'icc-cricket-world-cup' },
+      { name: 'IPL', emoji: '🇮🇳', slug: 'ipl' },
+      { name: 'The Ashes', emoji: '🇬🇧', slug: 'the-ashes' },
     ],
   },
 ];
@@ -164,8 +166,9 @@ export function SportsSidebar({ isDark = true }: SportsSidebarProps) {
               {isExpanded && (
                 <div className="ml-4 mt-1 mb-2 space-y-0.5">
                   {category.leagues.map((league) => (
-                    <button
+                    <Link
                       key={league.name}
+                      to={`/competition/${league.slug}`}
                       className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm
                         transition-colors text-left ${
                           isDark
@@ -175,7 +178,7 @@ export function SportsSidebar({ isDark = true }: SportsSidebarProps) {
                     >
                       <span className="text-xs">{league.emoji}</span>
                       <span>{league.name}</span>
-                    </button>
+                    </Link>
                   ))}
                 </div>
               )}
