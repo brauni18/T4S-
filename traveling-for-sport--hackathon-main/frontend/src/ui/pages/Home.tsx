@@ -1,4 +1,4 @@
-import { ImageCarousel } from '@/ui/components/ImageCarousel';
+import { UpcomingMatchesCarousel } from '@/ui/components/ImageCarousel';
 import { PostFeed } from '@/ui/components/PostFeed';
 // import { TrendingMatches } from '@/ui/components/TrendingMatches';
 import { TrendingTopics } from '@/ui/components/TrendingTopics';
@@ -27,9 +27,9 @@ export function Home() {
         </button>
       </div>
 
-      {/* Image carousel banner */}
+      {/* Upcoming matches carousel banner */}
       <section className="w-full pt-2 pb-2 px-6">
-        <ImageCarousel isDark={isDark} />
+        <UpcomingMatchesCarousel isDark={isDark} />
       </section>
 
       {/* Main content: 3-column Reddit-style layout */}
