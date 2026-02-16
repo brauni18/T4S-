@@ -10,10 +10,16 @@ import {
   MessageSquare,
   TrendingUp,
   Search,
+  Shield,
+  BookOpen,
+  Clock,
+  ExternalLink,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useGetMatchesQuery } from '@/store/apis/matches.api';
 import type { RootContext } from '@/ui/Root';
+import { SportsSidebar } from '@/ui/components/SportsSidebar';
+import { SPORT_TEAMS } from '@/ui/pages/Teams';
 
 // ── Competition registry ────────────────────────────────────
 
@@ -115,6 +121,120 @@ const MOCK_COMPETITION_POSTS: Record<string, ForumPost[]> = {
   ],
 };
 
+// ── Blog articles per competition ───────────────────────────
+
+interface BlogArticle {
+  id: string;
+  title: string;
+  excerpt: string;
+  author: string;
+  date: string;
+  readTime: string;
+  tag: 'guide' | 'city' | 'preview' | 'travel' | 'culture';
+  image: string;
+}
+
+const TAG_STYLES: Record<BlogArticle['tag'], { label: string; dark: string; light: string }> = {
+  guide:   { label: '📖 Guide',   dark: 'bg-blue-400/10 text-blue-400',   light: 'bg-blue-50 text-blue-600' },
+  city:    { label: '🏙️ City',    dark: 'bg-amber-400/10 text-amber-400', light: 'bg-amber-50 text-amber-600' },
+  preview: { label: '⚽ Preview',  dark: 'bg-green-400/10 text-green-400', light: 'bg-green-50 text-green-700' },
+  travel:  { label: '✈️ Travel',   dark: 'bg-purple-400/10 text-purple-400', light: 'bg-purple-50 text-purple-600' },
+  culture: { label: '🎭 Culture', dark: 'bg-rose-400/10 text-rose-400',   light: 'bg-rose-50 text-rose-600' },
+};
+
+const COMPETITION_BLOG: Record<string, BlogArticle[]> = {
+  'fifa-world-cup-2026': [
+    { id: 'b1', title: 'The Ultimate Fan Guide to World Cup 2026', excerpt: 'Everything you need to know about attending the first 48-team World Cup — venues, tickets, travel tips, and more across the US, Canada & Mexico.', author: 'Travel for Sport', date: '2026-01-15', readTime: '8 min', tag: 'guide', image: '🗺️' },
+    { id: 'b2', title: 'Dallas: Where Southern Hospitality Meets World-Class Football', excerpt: 'AT&T Stadium and the surrounding city offer a unique blend of BBQ, culture, and sports. Here\'s your complete Dallas match-day guide.', author: 'City Desk', date: '2026-01-20', readTime: '6 min', tag: 'city', image: '🤠' },
+    { id: 'b3', title: 'New York / New Jersey: The MetLife Experience', excerpt: 'MetLife Stadium will host key Group B and knockout matches. Discover the best ways to reach the stadium, where to stay, and NYC fan zones.', author: 'City Desk', date: '2026-01-22', readTime: '7 min', tag: 'city', image: '🗽' },
+    { id: 'b4', title: 'Los Angeles: Sun, Stars, and SoFi Stadium', excerpt: 'From the Hollywood sign to the state-of-the-art SoFi Stadium — LA is ready for the world\'s biggest tournament.', author: 'City Desk', date: '2026-01-25', readTime: '5 min', tag: 'city', image: '🌴' },
+    { id: 'b5', title: 'Miami: Heat, Passion, and Hard Rock Stadium', excerpt: 'Group D clashes in the Magic City. Where to eat, party, and soak in the Latin American football atmosphere.', author: 'City Desk', date: '2026-01-28', readTime: '5 min', tag: 'city', image: '🌊' },
+    { id: 'b6', title: 'Group A Preview: Can Mexico Thrive on Home Soil?', excerpt: 'Mexico faces Germany in the opener — a rematch of the 2018 shock. We break down every team\'s chances in Group A.', author: 'Tactics Lab', date: '2026-02-01', readTime: '6 min', tag: 'preview', image: '⚽' },
+    { id: 'b7', title: 'Group B Preview: USA vs Brazil — The Blockbuster Draw', excerpt: 'The hosts face a five-time champion. Can the USMNT pull off the upset? Plus Serbia and Morocco analysis.', author: 'Tactics Lab', date: '2026-02-03', readTime: '6 min', tag: 'preview', image: '🔥' },
+    { id: 'b8', title: 'Toronto: Canada\'s Football Capital Gets a World Cup', excerpt: 'BMO Field and the city of Toronto prepare for their biggest ever sporting moment. Transit, food, and culture highlights.', author: 'City Desk', date: '2026-02-05', readTime: '5 min', tag: 'city', image: '🍁' },
+    { id: 'b9', title: 'Mexico City: Estadio Azteca\'s Third World Cup', excerpt: 'The legendary Azteca becomes the first stadium to host three World Cups. Explore the city\'s incredible food scene and match-day traditions.', author: 'City Desk', date: '2026-02-08', readTime: '7 min', tag: 'city', image: '🇲🇽' },
+    { id: 'b10', title: 'Flying Between Host Cities: Budget Airline Tips', excerpt: 'With 16 venues across three countries, smart travel planning is key. We compare flight routes, costs, and cross-border logistics.', author: 'Travel for Sport', date: '2026-02-10', readTime: '9 min', tag: 'travel', image: '✈️' },
+    { id: 'b11', title: 'Philadelphia: History, Cheesesteaks & the Beautiful Game', excerpt: 'Lincoln Financial Field hosts Group E matches. Dive into Philly\'s best neighborhoods, food, and match-day energy.', author: 'City Desk', date: '2026-02-12', readTime: '5 min', tag: 'city', image: '🔔' },
+    { id: 'b12', title: 'Seattle: The Emerald City\'s Football Fever', excerpt: 'Known for its passionate Sounders fans, Seattle and Lumen Field are ready to welcome the world.', author: 'City Desk', date: '2026-02-14', readTime: '5 min', tag: 'city', image: '☕' },
+    { id: 'b13', title: 'World Cup Food Guide: What to Eat in Every Host City', excerpt: 'From Texas BBQ to Toronto poutine to Mexico City street tacos — your culinary guide to World Cup 2026.', author: 'Travel for Sport', date: '2026-02-15', readTime: '10 min', tag: 'culture', image: '🍕' },
+  ],
+  'premier-league': [
+    { id: 'pl1', title: 'Premier League 2025-26 Season Preview', excerpt: 'Man City chase a fifth straight title, while Arsenal and Liverpool look to dethrone them. Full season breakdown.', author: 'Tactics Lab', date: '2025-08-10', readTime: '8 min', tag: 'preview', image: '🏴' },
+    { id: 'pl2', title: 'London Derby Day: The Complete Fan Guide', excerpt: 'Arsenal vs Tottenham, Chelsea vs West Ham — navigating London\'s pubs, transit, and stadiums on derby day.', author: 'City Desk', date: '2025-09-01', readTime: '6 min', tag: 'city', image: '🏟️' },
+    { id: 'pl3', title: 'Manchester: Two Clubs, One Football-Mad City', excerpt: 'Old Trafford and the Etihad — visiting Manchester for the ultimate Premier League experience.', author: 'City Desk', date: '2025-09-15', readTime: '5 min', tag: 'city', image: '🐝' },
+    { id: 'pl4', title: 'Visiting Anfield: A First-Timer\'s Guide to Liverpool', excerpt: 'From the Shankly Gates to You\'ll Never Walk Alone — everything you need for an unforgettable Anfield trip.', author: 'City Desk', date: '2025-10-01', readTime: '6 min', tag: 'city', image: '🔴' },
+  ],
+  'uefa-champions-league': [
+    { id: 'ucl1', title: 'Champions League 2025-26: New Format Explained', excerpt: 'The expanded 36-team league phase brings more matches and drama. Here\'s how it all works.', author: 'Tactics Lab', date: '2025-09-10', readTime: '7 min', tag: 'guide', image: '🌟' },
+    { id: 'ucl2', title: 'Best European Cities for Away-Day Trips', excerpt: 'From Barcelona to Istanbul — the most fan-friendly cities for Champions League travel.', author: 'Travel for Sport', date: '2025-10-05', readTime: '8 min', tag: 'travel', image: '🌍' },
+  ],
+  'nba': [
+    { id: 'nba1', title: 'NBA 2025-26: Contenders and Pretenders', excerpt: 'The Celtics defend their title while the Thunder, Nuggets and Knicks chase the Larry O\'Brien trophy.', author: 'Tactics Lab', date: '2025-10-15', readTime: '7 min', tag: 'preview', image: '🏀' },
+    { id: 'nba2', title: 'Madison Square Garden: The Mecca of Basketball', excerpt: 'A visitor\'s guide to the world\'s most famous arena and everything NYC has to offer on game night.', author: 'City Desk', date: '2025-11-01', readTime: '6 min', tag: 'city', image: '🗽' },
+  ],
+  'nfl': [
+    { id: 'nfl1', title: 'NFL 2025 Season: Super Bowl LX Preview', excerpt: 'Can the Chiefs three-peat? Or will the Eagles, Lions, or Bills finally break through?', author: 'Tactics Lab', date: '2025-09-05', readTime: '7 min', tag: 'preview', image: '🏈' },
+    { id: 'nfl2', title: 'Tailgating 101: The Best NFL Parking Lots in America', excerpt: 'From Arrowhead to Lambeau, we rank the top tailgating experiences across the league.', author: 'Travel for Sport', date: '2025-09-10', readTime: '6 min', tag: 'culture', image: '🍖' },
+  ],
+};
+
+// ── Competition-specific team overrides ─────────────────────
+// For tournaments like the World Cup, show national teams instead of club teams.
+
+interface CompTeam {
+  name: string;
+  badge: string;
+  city: string;
+  stadium: string;
+  founded: number;
+  category: string;
+}
+
+const COMPETITION_TEAM_OVERRIDES: Record<string, CompTeam[]> = {
+  'fifa-world-cup-2026': [
+    // Group A
+    { name: 'Mexico', badge: '🇲🇽', city: 'Mexico City, Mexico', stadium: 'Estadio Azteca', founded: 1927, category: 'Group A' },
+    { name: 'Germany', badge: '🇩🇪', city: 'Frankfurt, Germany', stadium: 'Deutsche Bank Park', founded: 1900, category: 'Group A' },
+    { name: 'Ecuador', badge: '🇪🇨', city: 'Quito, Ecuador', stadium: 'Estadio Olímpico Atahualpa', founded: 1925, category: 'Group A' },
+    { name: 'Japan', badge: '🇯🇵', city: 'Tokyo, Japan', stadium: 'National Stadium', founded: 1921, category: 'Group A' },
+    // Group B
+    { name: 'USA', badge: '🇺🇸', city: 'Chicago, IL', stadium: 'Soldier Field', founded: 1913, category: 'Group B' },
+    { name: 'Brazil', badge: '🇧🇷', city: 'Rio de Janeiro, Brazil', stadium: 'Maracanã', founded: 1914, category: 'Group B' },
+    { name: 'Serbia', badge: '🇷🇸', city: 'Belgrade, Serbia', stadium: 'Rajko Mitić Stadium', founded: 1919, category: 'Group B' },
+    { name: 'Morocco', badge: '🇲🇦', city: 'Casablanca, Morocco', stadium: 'Stade Mohammed V', founded: 1956, category: 'Group B' },
+    // Group C
+    { name: 'England', badge: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', city: 'London, England', stadium: 'Wembley', founded: 1863, category: 'Group C' },
+    { name: 'Spain', badge: '🇪🇸', city: 'Madrid, Spain', stadium: 'Santiago Bernabéu', founded: 1920, category: 'Group C' },
+    { name: 'South Korea', badge: '🇰🇷', city: 'Seoul, South Korea', stadium: 'Seoul World Cup Stadium', founded: 1928, category: 'Group C' },
+    { name: 'Saudi Arabia', badge: '🇸🇦', city: 'Riyadh, Saudi Arabia', stadium: 'King Fahd Stadium', founded: 1956, category: 'Group C' },
+    // Group D
+    { name: 'France', badge: '🇫🇷', city: 'Paris, France', stadium: 'Stade de France', founded: 1919, category: 'Group D' },
+    { name: 'Argentina', badge: '🇦🇷', city: 'Buenos Aires, Argentina', stadium: 'Estadio Monumental', founded: 1893, category: 'Group D' },
+    { name: 'Nigeria', badge: '🇳🇬', city: 'Lagos, Nigeria', stadium: 'Teslim Balogun Stadium', founded: 1945, category: 'Group D' },
+    { name: 'Australia', badge: '🇦🇺', city: 'Sydney, Australia', stadium: 'Stadium Australia', founded: 1922, category: 'Group D' },
+    // Group E
+    { name: 'Netherlands', badge: '🇳🇱', city: 'Amsterdam, Netherlands', stadium: 'Johan Cruyff Arena', founded: 1889, category: 'Group E' },
+    { name: 'Portugal', badge: '🇵🇹', city: 'Lisbon, Portugal', stadium: 'Estádio da Luz', founded: 1914, category: 'Group E' },
+    { name: 'Canada', badge: '🇨🇦', city: 'Toronto, Canada', stadium: 'BMO Field', founded: 1986, category: 'Group E' },
+    { name: 'Senegal', badge: '🇸🇳', city: 'Dakar, Senegal', stadium: 'Stade Abdoulaye Wade', founded: 1960, category: 'Group E' },
+    // Group F
+    { name: 'Belgium', badge: '🇧🇪', city: 'Brussels, Belgium', stadium: 'King Baudouin Stadium', founded: 1895, category: 'Group F' },
+    { name: 'Colombia', badge: '🇨🇴', city: 'Bogotá, Colombia', stadium: 'Estadio El Campín', founded: 1924, category: 'Group F' },
+    { name: 'Ghana', badge: '🇬🇭', city: 'Accra, Ghana', stadium: 'Accra Sports Stadium', founded: 1957, category: 'Group F' },
+    { name: 'Uruguay', badge: '🇺🇾', city: 'Montevideo, Uruguay', stadium: 'Estadio Centenario', founded: 1900, category: 'Group F' },
+    // Group G
+    { name: 'Italy', badge: '🇮🇹', city: 'Rome, Italy', stadium: 'Stadio Olimpico', founded: 1898, category: 'Group G' },
+    { name: 'Croatia', badge: '🇭🇷', city: 'Zagreb, Croatia', stadium: 'Stadion Maksimir', founded: 1912, category: 'Group G' },
+    { name: 'Chile', badge: '🇨🇱', city: 'Santiago, Chile', stadium: 'Estadio Nacional', founded: 1895, category: 'Group G' },
+    { name: 'Iran', badge: '🇮🇷', city: 'Tehran, Iran', stadium: 'Azadi Stadium', founded: 1920, category: 'Group G' },
+    // Group H
+    { name: 'Denmark', badge: '🇩🇰', city: 'Copenhagen, Denmark', stadium: 'Parken Stadium', founded: 1889, category: 'Group H' },
+    { name: 'Switzerland', badge: '🇨🇭', city: 'Bern, Switzerland', stadium: 'Wankdorf Stadium', founded: 1895, category: 'Group H' },
+    { name: 'Poland', badge: '🇵🇱', city: 'Warsaw, Poland', stadium: 'PGE Narodowy', founded: 1919, category: 'Group H' },
+    { name: 'Cameroon', badge: '🇨🇲', city: 'Yaoundé, Cameroon', stadium: 'Stade Ahmadou Ahidjo', founded: 1959, category: 'Group H' },
+  ],
+};
+
 // ── Helpers ──────────────────────────────────────────────────
 
 function groupMatchesByStage(matches: Match[]): { stage: string; matches: Match[] }[] {
@@ -132,7 +252,8 @@ function groupMatchesByStage(matches: Match[]): { stage: string; matches: Match[
 export function Competition() {
   const { competitionSlug } = useParams<{ competitionSlug: string }>();
   const { isDark } = useOutletContext<RootContext>();
-  const [activeTab, setActiveTab] = useState<'matches' | 'posts' | 'stats'>('matches');
+  const [activeTab, setActiveTab] = useState<'matches' | 'teams' | 'blog' | 'posts' | 'stats'>('matches');
+  const [blogFilter, setBlogFilter] = useState<BlogArticle['tag'] | 'all'>('all');
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'completed'>('all');
   const [activeStage, setActiveStage] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -175,6 +296,30 @@ export function Competition() {
   const groupedMatches = useMemo(() => groupMatchesByStage(matches), [matches]);
 
   const posts = competitionSlug ? MOCK_COMPETITION_POSTS[competitionSlug] || [] : [];
+
+  // Derive teams: use competition-specific overrides (e.g. national teams for World Cup),
+  // otherwise fall back to the sport-level club teams.
+  const sportSlug = competition?.sport.toLowerCase().replace(/\s*\(.*\)/, '').replace(/\s+/g, '-') ?? '';
+  const competitionTeams = useMemo(() => {
+    if (competitionSlug && COMPETITION_TEAM_OVERRIDES[competitionSlug]) {
+      return COMPETITION_TEAM_OVERRIDES[competitionSlug];
+    }
+    const sport = SPORT_TEAMS.find(
+      (s) => s.slug === sportSlug || s.label.toLowerCase().startsWith(sportSlug),
+    );
+    return sport?.teams ?? [];
+  }, [competitionSlug, sportSlug]);
+
+  const blogArticles = useMemo(() => {
+    const articles = (competitionSlug ? COMPETITION_BLOG[competitionSlug] : null) ?? [];
+    if (blogFilter === 'all') return articles;
+    return articles.filter((a) => a.tag === blogFilter);
+  }, [competitionSlug, blogFilter]);
+
+  const blogTags = useMemo(() => {
+    const all = (competitionSlug ? COMPETITION_BLOG[competitionSlug] : null) ?? [];
+    return Array.from(new Set(all.map((a) => a.tag)));
+  }, [competitionSlug]);
 
   if (!competition) {
     return (
@@ -267,6 +412,8 @@ export function Competition() {
             {(
               [
                 { key: 'matches', label: 'Matches', icon: Calendar },
+                { key: 'teams', label: 'Teams', icon: Shield },
+                { key: 'blog', label: 'Blog', icon: BookOpen },
                 { key: 'posts', label: 'Community', icon: MessageSquare },
                 { key: 'stats', label: 'Statistics', icon: TrendingUp },
               ] as const
@@ -293,7 +440,14 @@ export function Competition() {
       </div>
 
       {/* ─── Content ──────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 flex gap-6">
+        {/* Sidebar */}
+        <aside className="hidden lg:block w-72 shrink-0 sticky top-20 self-start">
+          <SportsSidebar isDark={isDark} />
+        </aside>
+
+        {/* Main content */}
+        <div className="flex-1 min-w-0">
         {/* ── Matches tab ── */}
         {activeTab === 'matches' && (
           <>
@@ -564,6 +718,227 @@ export function Competition() {
           </div>
         )}
 
+        {/* ── Teams tab ── */}
+        {activeTab === 'teams' && (
+          <div>
+            {competitionTeams.length === 0 ? (
+              <div
+                className={`text-center py-16 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
+              >
+                <Shield className="size-10 mx-auto mb-3 opacity-40" />
+                <p>No team data available for this competition yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {competitionTeams.map((team) => (
+                  <div
+                    key={team.name}
+                    className={`group relative rounded-xl border p-5 transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer ${
+                      isDark
+                        ? 'bg-[#1a1a1a] border-white/10 hover:border-[#22c55e]/40'
+                        : 'bg-white border-gray-200 hover:border-[#22c55e]/50 shadow-sm'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div
+                        className={`w-11 h-11 rounded-lg flex items-center justify-center text-2xl ${
+                          isDark ? 'bg-white/5' : 'bg-gray-50'
+                        }`}
+                      >
+                        {team.badge}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3
+                          className={`font-bold text-sm truncate ${
+                            isDark ? 'text-white' : 'text-gray-900'
+                          }`}
+                        >
+                          {team.name}
+                        </h3>
+                        <p
+                          className={`text-xs ${
+                            isDark ? 'text-gray-500' : 'text-gray-400'
+                          }`}
+                        >
+                          {team.category}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className={`h-px my-3 ${isDark ? 'bg-white/5' : 'bg-gray-100'}`} />
+
+                    <div className="space-y-2">
+                      <div
+                        className={`flex items-center gap-2 text-xs ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}
+                      >
+                        <MapPin className="size-3.5 shrink-0 text-[#22c55e]" />
+                        <span className="truncate">{team.city}</span>
+                      </div>
+                      <div
+                        className={`flex items-center gap-2 text-xs ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}
+                      >
+                        <Users className="size-3.5 shrink-0 text-[#22c55e]" />
+                        <span className="truncate">{team.stadium}</span>
+                      </div>
+                    </div>
+
+                    <div className="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl bg-[#22c55e] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Blog tab ── */}
+        {activeTab === 'blog' && (
+          <div>
+            {/* Tag filter pills */}
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              <button
+                onClick={() => setBlogFilter('all')}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  blogFilter === 'all'
+                    ? isDark
+                      ? 'bg-[#22c55e]/15 text-[#22c55e]'
+                      : 'bg-green-100 text-green-700'
+                    : isDark
+                      ? 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+                }`}
+              >
+                All
+              </button>
+              {blogTags.map((tag) => {
+                const style = TAG_STYLES[tag];
+                return (
+                  <button
+                    key={tag}
+                    onClick={() => setBlogFilter(tag)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      blogFilter === tag
+                        ? isDark
+                          ? style.dark
+                          : style.light
+                        : isDark
+                          ? 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+                    }`}
+                  >
+                    {style.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {blogArticles.length === 0 ? (
+              <div
+                className={`text-center py-16 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
+              >
+                <BookOpen className="size-10 mx-auto mb-3 opacity-40" />
+                <p>No blog articles available yet for this competition.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {blogArticles.map((article) => {
+                  const tagStyle = TAG_STYLES[article.tag];
+                  return (
+                    <article
+                      key={article.id}
+                      className={`group relative rounded-xl border p-5 transition-all hover:shadow-lg cursor-pointer ${
+                        isDark
+                          ? 'bg-[#1a1a1a] border-white/10 hover:border-white/20'
+                          : 'bg-white border-gray-200 shadow-sm hover:shadow-md'
+                      }`}
+                    >
+                      <div className="flex gap-4">
+                        {/* Thumbnail */}
+                        <div
+                          className={`shrink-0 w-14 h-14 rounded-lg flex items-center justify-center text-3xl ${
+                            isDark ? 'bg-white/5' : 'bg-gray-50'
+                          }`}
+                        >
+                          {article.image}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          {/* Tag + read time */}
+                          <div className="flex items-center gap-2 mb-2">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                isDark ? tagStyle.dark : tagStyle.light
+                              }`}
+                            >
+                              {tagStyle.label}
+                            </span>
+                            <span
+                              className={`flex items-center gap-1 text-xs ${
+                                isDark ? 'text-gray-500' : 'text-gray-400'
+                              }`}
+                            >
+                              <Clock className="size-3" />
+                              {article.readTime}
+                            </span>
+                          </div>
+
+                          {/* Title */}
+                          <h3
+                            className={`font-bold text-sm mb-1 line-clamp-1 group-hover:text-[#22c55e] transition-colors ${
+                              isDark ? 'text-white' : 'text-gray-900'
+                            }`}
+                          >
+                            {article.title}
+                          </h3>
+
+                          {/* Excerpt */}
+                          <p
+                            className={`text-xs leading-relaxed line-clamp-2 ${
+                              isDark ? 'text-gray-400' : 'text-gray-500'
+                            }`}
+                          >
+                            {article.excerpt}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Footer */}
+                      <div
+                        className={`flex items-center justify-between mt-4 pt-3 border-t border-dashed ${
+                          isDark ? 'border-white/5' : 'border-gray-100'
+                        }`}
+                      >
+                        <div
+                          className={`text-xs ${
+                            isDark ? 'text-gray-500' : 'text-gray-400'
+                          }`}
+                        >
+                          By <span className="font-medium">{article.author}</span> · {format(new Date(article.date), 'MMM d, yyyy')}
+                        </div>
+                        <div
+                          className={`flex items-center gap-1 text-xs font-medium ${
+                            isDark
+                              ? 'text-gray-500 group-hover:text-[#22c55e]'
+                              : 'text-gray-400 group-hover:text-green-600'
+                          } transition-colors`}
+                        >
+                          Read more
+                          <ExternalLink className="size-3" />
+                        </div>
+                      </div>
+
+                      <div className="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl bg-[#22c55e] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ── Stats tab ── */}
         {activeTab === 'stats' && (
           <div
@@ -576,6 +951,7 @@ export function Competition() {
             </p>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

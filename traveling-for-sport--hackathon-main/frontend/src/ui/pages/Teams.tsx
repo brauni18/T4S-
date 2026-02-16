@@ -21,7 +21,7 @@ interface SportData {
   teams: TeamCard[];
 }
 
-const SPORT_TEAMS: SportData[] = [
+export const SPORT_TEAMS: SportData[] = [
   {
     label: 'Football (Soccer)',
     icon: '⚽',
