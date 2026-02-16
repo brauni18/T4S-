@@ -1,6 +1,7 @@
 import { useParams, Link, useOutletContext } from 'react-router';
 import { useMemo, useState } from 'react';
 import { ArrowLeft, MapPin, Users, LayoutGrid, Layers, Search } from 'lucide-react';
+import { SportsSidebar } from '@/ui/components/SportsSidebar';
 import type { RootContext } from '@/ui/Root';
 
 // ── Team data with extra info for cards ─────────────────────
@@ -391,6 +392,16 @@ export function Teams() {
 
       {/* ─── Content ──────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
+          {/* Left sidebar */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-16">
+              <SportsSidebar isDark={isDark} />
+            </div>
+          </aside>
+
+          {/* Main content */}
+          <div className="min-w-0">
         {/* Category filter pills (shown in both tabs) */}
         <div className="flex flex-wrap items-center gap-2 mb-6">
           <button
@@ -487,6 +498,8 @@ export function Teams() {
             ))}
           </div>
         )}
+          </div>
+        </div>
       </div>
     </div>
   );

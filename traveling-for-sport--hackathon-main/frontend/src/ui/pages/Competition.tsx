@@ -17,8 +17,8 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useGetMatchesQuery } from '@/store/apis/matches.api';
-import type { RootContext } from '@/ui/Root';
 import { SportsSidebar } from '@/ui/components/SportsSidebar';
+import type { RootContext } from '@/ui/Root';
 import { SPORT_TEAMS } from '@/ui/pages/Teams';
 
 // ── Competition registry ────────────────────────────────────
