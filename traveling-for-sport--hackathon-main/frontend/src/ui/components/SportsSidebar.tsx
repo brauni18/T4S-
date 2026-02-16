@@ -1,11 +1,24 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronRight,
+  Trophy,
+  Users,
+  Star,
+  Settings,
+  HelpCircle,
+  LogOut,
+} from 'lucide-react';
 import { Link } from 'react-router';
+import { useAppSelector } from '@/store/hooks';
+import { SPORT_SLUGS } from '@/ui/pages/Teams';
+
+// ── Data Types ──────────────────────────────────────────────
 
 interface League {
   name: string;
   emoji?: string;
-  slug: string; // URL slug for navigation
+  slug: string;
 }
 
 interface SportCategory {
@@ -14,7 +27,9 @@ interface SportCategory {
   leagues: League[];
 }
 
-const SPORTS_CATEGORIES: SportCategory[] = [
+// ── Static Data ─────────────────────────────────────────────
+
+const COMPETITIONS: SportCategory[] = [
   {
     name: 'Football (Soccer)',
     icon: '⚽',
@@ -90,102 +105,242 @@ const SPORTS_CATEGORIES: SportCategory[] = [
   },
 ];
 
+// Country‑flag lookup for "My Teams" display
+const TEAM_FLAGS: Record<string, string> = {
+  USA: '🇺🇸', Mexico: '🇲🇽', Canada: '🇨🇦', Argentina: '🇦🇷', Brazil: '🇧🇷',
+  Chile: '🇨🇱', Colombia: '🇨🇴', Uruguay: '🇺🇾',
+  England: '🏴', Germany: '🇩🇪', France: '🇫🇷', Spain: '🇪🇸', Italy: '🇮🇹',
+  Netherlands: '🇳🇱', Portugal: '🇵🇹', Belgium: '🇧🇪', Croatia: '🇭🇷',
+  Poland: '🇵🇱', Denmark: '🇩🇰', Switzerland: '🇨🇭', Austria: '🇦🇹',
+  'Czech Republic': '🇨🇿', Morocco: '🇲🇦', Nigeria: '🇳🇬', Ghana: '🇬🇭',
+  Senegal: '🇸🇳', Japan: '🇯🇵', 'South Korea': '🇰🇷', Iran: '🇮🇷',
+  'Saudi Arabia': '🇸🇦', Qatar: '🇶🇦', Australia: '🇦🇺',
+};
+
+// ── Component ───────────────────────────────────────────────
+
 interface SportsSidebarProps {
   isDark?: boolean;
 }
 
-export function SportsSidebar({ isDark = true }: SportsSidebarProps) {
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(['Football (Soccer)'])
-  );
+type SectionKey = 'competitions' | 'teams' | 'myTeams';
 
-  const toggleCategory = (name: string) => {
-    setExpandedCategories((prev) => {
+export function SportsSidebar({ isDark = true }: SportsSidebarProps) {
+  const favoriteTeams = useAppSelector((s) => s.user.favoriteTeams);
+
+  // Which top-level sections are open
+  const [openSections, setOpenSections] = useState<Set<SectionKey>>(
+    new Set(['competitions'])
+  );
+  // Which sub-groups inside a section are open (keyed by name)
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
+
+  const toggleSection = (key: SectionKey) => {
+    setOpenSections((prev) => {
       const next = new Set(prev);
-      if (next.has(name)) {
-        next.delete(name);
-      } else {
-        next.add(name);
-      }
+      next.has(key) ? next.delete(key) : next.add(key);
       return next;
     });
   };
 
-  return (
-    <div
-      className={`border rounded-xl p-4 ${
-        isDark
-          ? 'bg-[#1a1a1a] border-white/10'
-          : 'bg-white border-gray-200 shadow-sm'
-      }`}
-    >
-      <h3
-        className={`font-bold text-sm mb-4 ${
-          isDark ? 'text-white' : 'text-gray-900'
+  const toggleGroup = (name: string) => {
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      next.has(name) ? next.delete(name) : next.add(name);
+      return next;
+    });
+  };
+
+  // ── helpers ──
+  const sectionBtn = (
+    key: SectionKey,
+    icon: React.ReactNode,
+    label: string,
+  ) => {
+    const open = openSections.has(key);
+    return (
+      <button
+        onClick={() => toggleSection(key)}
+        className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors text-left ${
+          open
+            ? isDark
+              ? 'text-white bg-white/5'
+              : 'text-gray-900 bg-gray-50'
+            : isDark
+              ? 'text-gray-400 hover:text-white hover:bg-white/5'
+              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
         }`}
       >
-        Sports & Leagues
-      </h3>
-      <nav className="space-y-1">
-        {SPORTS_CATEGORIES.map((category) => {
-          const isExpanded = expandedCategories.has(category.name);
-          return (
-            <div key={category.name}>
-              <button
-                onClick={() => toggleCategory(category.name)}
-                className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm
-                  transition-colors text-left group ${
-                    isDark ? 'hover:bg-white/5' : 'hover:bg-gray-50'
-                  }`}
-              >
-                <span className="text-base">{category.icon}</span>
-                <span
-                  className={`flex-1 font-medium ${
-                    isExpanded
-                      ? isDark
-                        ? 'text-white'
-                        : 'text-gray-900'
-                      : isDark
-                      ? 'text-gray-400'
-                      : 'text-gray-500'
-                  }`}
-                >
-                  {category.name}
-                </span>
-                {isExpanded ? (
-                  <ChevronDown
-                    className={`size-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
-                  />
-                ) : (
-                  <ChevronRight
-                    className={`size-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
-                  />
-                )}
-              </button>
+        {icon}
+        <span className="flex-1">{label}</span>
+        {open ? (
+          <ChevronDown className={`size-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
+        ) : (
+          <ChevronRight className={`size-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
+        )}
+      </button>
+    );
+  };
 
-              {isExpanded && (
-                <div className="ml-4 mt-1 mb-2 space-y-0.5">
-                  {category.leagues.map((league) => (
+  const groupBtn = (icon: string, label: string) => {
+    const open = openGroups.has(label);
+    return (
+      <button
+        onClick={() => toggleGroup(label)}
+        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors text-left ${
+          isDark ? 'hover:bg-white/5' : 'hover:bg-gray-50'
+        }`}
+      >
+        <span className="text-sm">{icon}</span>
+        <span
+          className={`flex-1 font-medium ${
+            open
+              ? isDark ? 'text-white' : 'text-gray-900'
+              : isDark ? 'text-gray-400' : 'text-gray-500'
+          }`}
+        >
+          {label}
+        </span>
+        {open ? (
+          <ChevronDown className={`size-3.5 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
+        ) : (
+          <ChevronRight className={`size-3.5 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
+        )}
+      </button>
+    );
+  };
+
+  return (
+    <div
+      className={`border rounded-xl p-4 space-y-1 ${
+        isDark ? 'bg-[#1a1a1a] border-white/10' : 'bg-white border-gray-200 shadow-sm'
+      }`}
+    >
+      {/* ─── Competitions ─────────────────────────── */}
+      {sectionBtn(
+        'competitions',
+        <Trophy className={`size-4 ${isDark ? 'text-[#22c55e]' : 'text-green-600'}`} />,
+        'Competitions',
+      )}
+      {openSections.has('competitions') && (
+        <div className="ml-2 mt-1 mb-2 space-y-0.5">
+          {COMPETITIONS.map((cat) => (
+            <div key={cat.name}>
+              {groupBtn(cat.icon, cat.name)}
+              {openGroups.has(cat.name) && (
+                <div className="ml-7 mt-0.5 mb-1 space-y-0.5">
+                  {cat.leagues.map((lg) => (
                     <Link
-                      key={league.name}
-                      to={`/competition/${league.slug}`}
-                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm
-                        transition-colors text-left ${
-                          isDark
-                            ? 'text-gray-400 hover:text-white hover:bg-white/5'
-                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
-                        }`}
+                      key={lg.slug}
+                      to={`/competition/${lg.slug}`}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
+                        isDark
+                          ? 'text-gray-400 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
                     >
-                      <span className="text-xs">{league.emoji}</span>
-                      <span>{league.name}</span>
+                      <span className="text-xs">{lg.emoji}</span>
+                      <span>{lg.name}</span>
                     </Link>
                   ))}
                 </div>
               )}
             </div>
-          );
-        })}
-      </nav>
+          ))}
+        </div>
+      )}
+
+      {/* ─── Teams ────────────────────────────────── */}
+      {sectionBtn(
+        'teams',
+        <Users className={`size-4 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />,
+        'Teams',
+      )}
+      {openSections.has('teams') && (
+        <div className="ml-2 mt-1 mb-2 space-y-0.5">
+          {SPORT_SLUGS.map((s) => (
+            <Link
+              key={s.slug}
+              to={`/teams/${s.slug}`}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                isDark
+                  ? 'text-gray-400 hover:text-white hover:bg-white/5'
+                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <span className="text-sm">{s.icon}</span>
+              <span className="font-medium">{s.label}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* ─── My Teams ─────────────────────────────── */}
+      {sectionBtn(
+        'myTeams',
+        <Star className={`size-4 ${isDark ? 'text-yellow-400' : 'text-yellow-500'}`} />,
+        'My Teams',
+      )}
+      {openSections.has('myTeams') && (
+        <div className="ml-2 mt-1 mb-2 space-y-0.5">
+          {favoriteTeams.length === 0 ? (
+            <p className={`px-3 py-2 text-xs italic ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
+              No favorite teams yet — pick some on the Welcome page!
+            </p>
+          ) : (
+            favoriteTeams.map((team) => (
+              <div
+                key={team}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors ${
+                  isDark
+                    ? 'text-gray-300 hover:text-white hover:bg-white/5'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                <span className="text-sm">{TEAM_FLAGS[team] ?? '⚽'}</span>
+                <span className="font-medium">{team}</span>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* ─── Separator ────────────────────────────── */}
+      <div className={`my-3 border-t ${isDark ? 'border-white/10' : 'border-gray-200'}`} />
+
+      {/* ─── Bottom links ─────────────────────────── */}
+      <div className="space-y-0.5">
+        <button
+          className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${
+            isDark
+              ? 'text-gray-400 hover:text-white hover:bg-white/5'
+              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+          }`}
+        >
+          <Settings className="size-4" />
+          <span>Settings</span>
+        </button>
+        <button
+          className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${
+            isDark
+              ? 'text-gray-400 hover:text-white hover:bg-white/5'
+              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+          }`}
+        >
+          <HelpCircle className="size-4" />
+          <span>Help & FAQ</span>
+        </button>
+        <button
+          className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${
+            isDark
+              ? 'text-red-400/70 hover:text-red-400 hover:bg-red-400/5'
+              : 'text-red-500/70 hover:text-red-600 hover:bg-red-50'
+          }`}
+        >
+          <LogOut className="size-4" />
+          <span>Log out</span>
+        </button>
+      </div>
     </div>
   );
 }
