@@ -2,6 +2,7 @@ import { useParams, Link, useOutletContext } from 'react-router';
 import { useMemo, useState } from 'react';
 import { ArrowLeft, MapPin, Users, LayoutGrid, Layers, Search } from 'lucide-react';
 import { SportsSidebar } from '@/ui/components/SportsSidebar';
+import { TeamBadge } from '@/ui/components/TeamBadge';
 import type { RootContext } from '@/ui/Root';
 
 // ── Team data with extra info for cards ─────────────────────
@@ -121,12 +122,12 @@ export const SPORT_TEAMS: SportData[] = [
     icon: '🏉',
     slug: 'rugby',
     teams: [
-      { name: 'All Blacks', badge: '🇳🇿', city: 'New Zealand', stadium: 'Eden Park', founded: 1884, category: 'Southern Hemisphere' },
-      { name: 'Springboks', badge: '🇿🇦', city: 'South Africa', stadium: 'Ellis Park', founded: 1891, category: 'Southern Hemisphere' },
-      { name: 'Ireland', badge: '🇮🇪', city: 'Dublin', stadium: 'Aviva Stadium', founded: 1879, category: 'Six Nations' },
-      { name: 'France', badge: '🇫🇷', city: 'Paris', stadium: 'Stade de France', founded: 1906, category: 'Six Nations' },
-      { name: 'England', badge: '🏴', city: 'London', stadium: 'Twickenham', founded: 1871, category: 'Six Nations' },
-      { name: 'Wallabies', badge: '🇦🇺', city: 'Australia', stadium: 'Stadium Australia', founded: 1899, category: 'Southern Hemisphere' },
+      { name: 'All Blacks', badge: 'nz', city: 'New Zealand', stadium: 'Eden Park', founded: 1884, category: 'Southern Hemisphere' },
+      { name: 'Springboks', badge: 'za', city: 'South Africa', stadium: 'Ellis Park', founded: 1891, category: 'Southern Hemisphere' },
+      { name: 'Ireland', badge: 'ie', city: 'Dublin', stadium: 'Aviva Stadium', founded: 1879, category: 'Six Nations' },
+      { name: 'France', badge: 'fr', city: 'Paris', stadium: 'Stade de France', founded: 1906, category: 'Six Nations' },
+      { name: 'England', badge: 'gb-eng', city: 'London', stadium: 'Twickenham', founded: 1871, category: 'Six Nations' },
+      { name: 'Wallabies', badge: 'au', city: 'Australia', stadium: 'Stadium Australia', founded: 1899, category: 'Southern Hemisphere' },
     ],
   },
   {
@@ -138,10 +139,10 @@ export const SPORT_TEAMS: SportData[] = [
       { name: 'Chennai Super Kings', badge: '🟡', city: 'Chennai, India', stadium: 'MA Chidambaram', founded: 2008, category: 'IPL Franchises' },
       { name: 'Royal Challengers', badge: '🔴', city: 'Bangalore, India', stadium: 'M. Chinnaswamy', founded: 2008, category: 'IPL Franchises' },
       { name: 'Kolkata Knight Riders', badge: '🟣', city: 'Kolkata, India', stadium: 'Eden Gardens', founded: 2008, category: 'IPL Franchises' },
-      { name: 'India', badge: '🇮🇳', city: 'India', stadium: 'Various', founded: 1932, category: 'National Teams' },
-      { name: 'Australia', badge: '🇦🇺', city: 'Australia', stadium: 'MCG', founded: 1877, category: 'National Teams' },
-      { name: 'England', badge: '🏴', city: 'England', stadium: "Lord's", founded: 1877, category: 'National Teams' },
-      { name: 'Pakistan', badge: '🇵🇰', city: 'Pakistan', stadium: 'Various', founded: 1952, category: 'National Teams' },
+      { name: 'India', badge: 'in', city: 'India', stadium: 'Various', founded: 1932, category: 'National Teams' },
+      { name: 'Australia', badge: 'au', city: 'Australia', stadium: 'MCG', founded: 1877, category: 'National Teams' },
+      { name: 'England', badge: 'gb-eng', city: 'England', stadium: "Lord's", founded: 1877, category: 'National Teams' },
+      { name: 'Pakistan', badge: 'pk', city: 'Pakistan', stadium: 'Various', founded: 1952, category: 'National Teams' },
     ],
   },
 ];
@@ -194,7 +195,7 @@ function TeamCardItem({ team, isDark, sportSlug }: { team: TeamCard; isDark: boo
             isDark ? 'bg-white/5' : 'bg-gray-50'
           }`}
         >
-          {team.badge}
+          <TeamBadge badge={team.badge} size={28} />
         </div>
         <div className="min-w-0 flex-1">
           <h3

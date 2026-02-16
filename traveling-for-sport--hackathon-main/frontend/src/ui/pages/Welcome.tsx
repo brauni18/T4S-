@@ -5,56 +5,59 @@ import { Globe, User } from 'lucide-react';
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router';
 
-const COUNTRY_FLAGS: Record<string, string> = {
-  Israel: '🇮🇱',
-  'United States': '🇺🇸',
-  Mexico: '🇲🇽',
-  Canada: '🇨🇦',
-  Argentina: '🇦🇷',
-  Brazil: '🇧🇷',
-  Chile: '🇨🇱',
-  Colombia: '🇨🇴',
-  Uruguay: '🇺🇾',
-  England: '🇬🇧',
-  Germany: '🇩🇪',
-  France: '🇫🇷',
-  Spain: '🇪🇸',
-  Italy: '🇮🇹',
-  Netherlands: '🇳🇱',
-  Portugal: '🇵🇹',
-  Belgium: '🇧🇪',
-  Croatia: '🇭🇷',
-  Poland: '🇵🇱',
-  Denmark: '🇩🇰',
-  Switzerland: '🇨🇭',
-  Austria: '🇦🇹',
-  'Czech Republic': '🇨🇿',
-  Morocco: '🇲🇦',
-  Egypt: '🇪🇬',
-  Nigeria: '🇳🇬',
-  Ghana: '🇬🇭',
-  Senegal: '🇸🇳',
-  Japan: '🇯🇵',
-  'South Korea': '🇰🇷',
-  Iran: '🇮🇷',
-  'Saudi Arabia': '🇸🇦',
-  Qatar: '🇶🇦',
-  Australia: '🇦🇺',
-  Russia: '🇷🇺',
-  Ukraine: '🇺🇦',
-  Turkey: '🇹🇷',
-  Greece: '🇬🇷',
-  Ireland: '🇮🇪',
-  Scotland: '🇬🇧',
-  Wales: '🇬🇧',
-  Sweden: '🇸🇪',
-  Norway: '🇳🇴',
-  Finland: '🇫🇮',
-  Iceland: '🇮🇸',
-  Other: '🌍'
+const COUNTRY_FLAG_CODES: Record<string, string> = {
+  Israel: 'il',
+  'United States': 'us',
+  Mexico: 'mx',
+  Canada: 'ca',
+  Argentina: 'ar',
+  Brazil: 'br',
+  Chile: 'cl',
+  Colombia: 'co',
+  Uruguay: 'uy',
+  England: 'gb-eng',
+  Germany: 'de',
+  France: 'fr',
+  Spain: 'es',
+  Italy: 'it',
+  Netherlands: 'nl',
+  Portugal: 'pt',
+  Belgium: 'be',
+  Croatia: 'hr',
+  Poland: 'pl',
+  Denmark: 'dk',
+  Switzerland: 'ch',
+  Austria: 'at',
+  'Czech Republic': 'cz',
+  Morocco: 'ma',
+  Egypt: 'eg',
+  Nigeria: 'ng',
+  Ghana: 'gh',
+  Senegal: 'sn',
+  Japan: 'jp',
+  'South Korea': 'kr',
+  Iran: 'ir',
+  'Saudi Arabia': 'sa',
+  Qatar: 'qa',
+  Australia: 'au',
+  Russia: 'ru',
+  Ukraine: 'ua',
+  Turkey: 'tr',
+  Greece: 'gr',
+  Ireland: 'ie',
+  Scotland: 'gb-sct',
+  Wales: 'gb-wls',
+  Sweden: 'se',
+  Norway: 'no',
+  Finland: 'fi',
+  Iceland: 'is',
+  Other: '',
 };
 
-const COUNTRIES = Object.keys(COUNTRY_FLAGS);
+const flagUrl = (code: string, w = 40) =>
+  `https://flagcdn.com/w${w}/${code}.png`;
+
+const COUNTRIES = Object.keys(COUNTRY_FLAG_CODES);
 
 const WORLD_CUP_TEAMS = [
   'USA', 'Mexico', 'Canada', 'Argentina', 'Brazil', 'Chile', 'Colombia', 'Uruguay',
@@ -134,23 +137,62 @@ export function Welcome() {
               <label className="block text-white font-semibold text-lg mb-4">
                 1. Where are you from?
               </label>
-              <select
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                className="w-full px-4 py-3.5 bg-[#1a1a1a] border border-white/15 rounded-xl text-white
-                  focus:outline-none focus:ring-2 focus:ring-[#22c55e] focus:border-transparent
-                  placeholder:text-gray-500 appearance-none cursor-pointer"
-                required
+              {country && COUNTRY_FLAG_CODES[country] && (
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <img
+                    src={flagUrl(COUNTRY_FLAG_CODES[country])}
+                    alt={country}
+                    className="w-6 h-auto rounded-sm"
+                  />
+                  <span className="text-white text-sm font-medium">{country}</span>
+                </div>
+              )}
+              <div
+                role="listbox"
+                aria-label="Select your country"
+                tabIndex={0}
+                className="max-h-56 overflow-y-auto bg-[#1a1a1a] border-2 border-white/15 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#22c55e] focus:border-[#22c55e]"
               >
-                <option value="" className="bg-[#1a1a1a] text-gray-500">
-                  Select a country
-                </option>
-                {COUNTRIES.map((c) => (
-                  <option key={c} value={c} className="bg-[#1a1a1a]">
-                    {COUNTRY_FLAGS[c]} {c}
-                  </option>
-                ))}
-              </select>
+                {COUNTRIES.map((c) => {
+                  const isSelected = country === c;
+                  const code = COUNTRY_FLAG_CODES[c];
+                  return (
+                    <div
+                      key={c}
+                      role="option"
+                      aria-selected={isSelected}
+                      tabIndex={0}
+                      onClick={() => setCountry(c)}
+                      onKeyDown={(e) => {
+                        if (e.key === ' ' || e.key === 'Enter') {
+                          e.preventDefault();
+                          setCountry(c);
+                        }
+                      }}
+                      className={`
+                        px-4 py-3 cursor-pointer select-none transition-colors
+                        flex items-center gap-3 border-b border-white/5 last:border-b-0
+                        ${
+                          isSelected
+                            ? 'bg-[#22c55e]/30 text-[#22c55e]'
+                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                        }
+                      `}
+                    >
+                      {code ? (
+                        <img
+                          src={flagUrl(code)}
+                          alt={c}
+                          className="w-6 h-auto rounded-sm shrink-0"
+                        />
+                      ) : (
+                        <Globe className="size-5 text-gray-500 shrink-0" />
+                      )}
+                      {c}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Question 2: Teams - Multi-select Listbox */}

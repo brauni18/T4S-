@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Link, useOutletContext } from 'react-router';
 import { Search, Users, MapPin, ArrowRight } from 'lucide-react';
 import { SportsSidebar } from '@/ui/components/SportsSidebar';
+import { TeamBadge } from '@/ui/components/TeamBadge';
 import { SPORT_TEAMS } from '@/ui/pages/Teams';
 import type { RootContext } from '@/ui/Root';
 
@@ -161,7 +162,7 @@ export function AllTeams() {
                             : 'bg-white border-gray-200 hover:border-green-300 hover:shadow-md'
                         }`}
                       >
-                        <span className="text-3xl shrink-0">{team.badge}</span>
+                        <span className="text-3xl shrink-0"><TeamBadge badge={team.badge} size={32} /></span>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold text-sm leading-tight group-hover:text-[#22c55e] transition-colors truncate">
                             {team.name}

@@ -1,5 +1,6 @@
 
 import { Home } from '@/ui/pages/Home';
+import { Blog } from '@/ui/pages/Blog';
 import { Competitions } from '@/ui/pages/Competitions';
 import { Competition } from '@/ui/pages/Competition';
 import { AllTeams } from '@/ui/pages/AllTeams';
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, Component: Welcome },
       { path: 'home', Component: Home },
+      { path: 'blog', Component: Blog },
       { path: 'competitions', Component: Competitions },
       { path: 'competition/:competitionSlug', Component: Competition },
       { path: 'teams', Component: AllTeams },

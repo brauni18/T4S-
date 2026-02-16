@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams, Link, useOutletContext } from 'react-router';
+import { isFlagCode, flagUrl } from '@/ui/components/TeamBadge';
 import {
   ArrowLeft,
   Building2,
@@ -107,22 +108,22 @@ const ALL_TEAMS: TeamInfo[] = [
   { name: 'Montreal Canadiens', badge: '🔴', city: 'Montreal, QC', stadium: 'Bell Centre', founded: 1909, category: 'Original Six', sport: 'Hockey', sportIcon: '🏒', sportSlug: 'hockey' },
   { name: 'Vegas Golden Knights', badge: '🟡', city: 'Las Vegas, NV', stadium: 'T-Mobile Arena', founded: 2017, category: 'New Era', sport: 'Hockey', sportIcon: '🏒', sportSlug: 'hockey' },
   // Rugby
-  { name: 'All Blacks', badge: '🇳🇿', city: 'New Zealand', stadium: 'Eden Park', founded: 1884, category: 'Southern Hemisphere', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
-  { name: 'Springboks', badge: '🇿🇦', city: 'South Africa', stadium: 'Ellis Park', founded: 1891, category: 'Southern Hemisphere', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
-  { name: 'Ireland', badge: '🇮🇪', city: 'Dublin', stadium: 'Aviva Stadium', founded: 1879, category: 'Six Nations', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
-  { name: 'France', badge: '🇫🇷', city: 'Paris', stadium: 'Stade de France', founded: 1906, category: 'Six Nations', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
-  { name: 'England', badge: '🏴', city: 'London', stadium: 'Twickenham', founded: 1871, category: 'Six Nations', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
-  { name: 'Wallabies', badge: '🇦🇺', city: 'Australia', stadium: 'Stadium Australia', founded: 1899, category: 'Southern Hemisphere', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
+  { name: 'All Blacks', badge: 'nz', city: 'New Zealand', stadium: 'Eden Park', founded: 1884, category: 'Southern Hemisphere', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
+  { name: 'Springboks', badge: 'za', city: 'South Africa', stadium: 'Ellis Park', founded: 1891, category: 'Southern Hemisphere', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
+  { name: 'Ireland', badge: 'ie', city: 'Dublin', stadium: 'Aviva Stadium', founded: 1879, category: 'Six Nations', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
+  { name: 'France', badge: 'fr', city: 'Paris', stadium: 'Stade de France', founded: 1906, category: 'Six Nations', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
+  { name: 'England', badge: 'gb-eng', city: 'London', stadium: 'Twickenham', founded: 1871, category: 'Six Nations', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
+  { name: 'Wallabies', badge: 'au', city: 'Australia', stadium: 'Stadium Australia', founded: 1899, category: 'Southern Hemisphere', sport: 'Rugby', sportIcon: '🏉', sportSlug: 'rugby' },
   // Cricket
   { name: 'Mumbai Indians', badge: '🔵', city: 'Mumbai, India', stadium: 'Wankhede Stadium', founded: 2008, category: 'IPL Franchises', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
   { name: 'Chennai Super Kings', badge: '🟡', city: 'Chennai, India', stadium: 'MA Chidambaram', founded: 2008, category: 'IPL Franchises', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
   { name: 'Royal Challengers', badge: '🔴', city: 'Bangalore, India', stadium: 'M. Chinnaswamy', founded: 2008, category: 'IPL Franchises', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
   { name: 'Kolkata Knight Riders', badge: '🟣', city: 'Kolkata, India', stadium: 'Eden Gardens', founded: 2008, category: 'IPL Franchises', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
-  { name: 'India', badge: '🇮🇳', city: 'India', stadium: 'Various', founded: 1932, category: 'National Teams', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
-  { name: 'Australia', badge: '🇦🇺', city: 'Australia', stadium: 'MCG', founded: 1877, category: 'National Teams', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
+  { name: 'India', badge: 'in', city: 'India', stadium: 'Various', founded: 1932, category: 'National Teams', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
+  { name: 'Australia', badge: 'au', city: 'Australia', stadium: 'MCG', founded: 1877, category: 'National Teams', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
   // Intentionally duplicated name "England" across rugby/cricket — slug differentiates
-  { name: 'England (Cricket)', badge: '🏴', city: 'England', stadium: "Lord's", founded: 1877, category: 'National Teams', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
-  { name: 'Pakistan', badge: '🇵🇰', city: 'Pakistan', stadium: 'Various', founded: 1952, category: 'National Teams', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
+  { name: 'England (Cricket)', badge: 'gb-eng', city: 'England', stadium: "Lord's", founded: 1877, category: 'National Teams', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
+  { name: 'Pakistan', badge: 'pk', city: 'Pakistan', stadium: 'Various', founded: 1952, category: 'National Teams', sport: 'Cricket', sportIcon: '🏏', sportSlug: 'cricket' },
 ];
 
 function teamToSlug(name: string): string {
@@ -490,7 +491,11 @@ export function Team() {
               <div className="flex flex-col items-center gap-4">
                 <div className="flex w-full items-center gap-5">
                   <div className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl text-4xl ${isDark ? 'bg-[#3a3a3a]' : 'bg-gray-100'}`}>
-                    {team.badge}
+                    {isFlagCode(team.badge) ? (
+                      <img src={flagUrl(team.badge, 80)} alt={team.name} className="w-12 h-auto rounded-sm object-cover" />
+                    ) : (
+                      team.badge
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <h1 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{team.name}</h1>

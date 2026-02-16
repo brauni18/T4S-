@@ -18,6 +18,7 @@ import {
 import { format } from 'date-fns';
 import { useGetMatchesQuery } from '@/store/apis/matches.api';
 import { SportsSidebar } from '@/ui/components/SportsSidebar';
+import { TeamBadge } from '@/ui/components/TeamBadge';
 import type { RootContext } from '@/ui/Root';
 import { SPORT_TEAMS } from '@/ui/pages/Teams';
 
@@ -30,16 +31,16 @@ interface CompetitionInfo {
   sport: string;
 }
 
-const COMPETITION_MAP: Record<string, CompetitionInfo> = {
+export const COMPETITION_MAP: Record<string, CompetitionInfo> = {
   // Football
   'fifa-world-cup-2026': { name: 'FIFA World Cup 2026', emoji: '🏆', description: 'The biggest football tournament in the world, hosted in USA, Canada & Mexico', sport: 'Football' },
   'uefa-champions-league': { name: 'UEFA Champions League', emoji: '🌟', description: "Europe's premier club football competition", sport: 'Football' },
-  'premier-league': { name: 'Premier League', emoji: '🏴', description: "England's top-tier football league", sport: 'Football' },
-  'la-liga': { name: 'La Liga', emoji: '🇪🇸', description: "Spain's premier football division", sport: 'Football' },
-  'serie-a': { name: 'Serie A', emoji: '🇮🇹', description: "Italy's top professional football league", sport: 'Football' },
-  'bundesliga': { name: 'Bundesliga', emoji: '🇩🇪', description: "Germany's premier football league", sport: 'Football' },
-  'ligue-1': { name: 'Ligue 1', emoji: '🇫🇷', description: "France's top-tier football league", sport: 'Football' },
-  'mls': { name: 'MLS', emoji: '🇺🇸', description: "Major League Soccer — top professional soccer league in North America", sport: 'Football' },
+  'premier-league': { name: 'Premier League', emoji: '⚽', description: "England's top-tier football league", sport: 'Football' },
+  'la-liga': { name: 'La Liga', emoji: '�', description: "Spain's premier football division", sport: 'Football' },
+  'serie-a': { name: 'Serie A', emoji: '🏆', description: "Italy's top professional football league", sport: 'Football' },
+  'bundesliga': { name: 'Bundesliga', emoji: '🏆', description: "Germany's premier football league", sport: 'Football' },
+  'ligue-1': { name: 'Ligue 1', emoji: '🏆', description: "France's top-tier football league", sport: 'Football' },
+  'mls': { name: 'MLS', emoji: '⚽', description: "Major League Soccer — top professional soccer league in North America", sport: 'Football' },
   // Basketball
   'nba': { name: 'NBA', emoji: '🏀', description: "National Basketball Association — America's premier basketball league", sport: 'Basketball' },
   'euroleague': { name: 'EuroLeague', emoji: '🏀', description: "Europe's premier professional basketball club competition", sport: 'Basketball' },
@@ -123,7 +124,7 @@ const MOCK_COMPETITION_POSTS: Record<string, ForumPost[]> = {
 
 // ── Blog articles per competition ───────────────────────────
 
-interface BlogArticle {
+export interface BlogArticle {
   id: string;
   title: string;
   excerpt: string;
@@ -134,7 +135,7 @@ interface BlogArticle {
   image: string;
 }
 
-const TAG_STYLES: Record<BlogArticle['tag'], { label: string; dark: string; light: string }> = {
+export const TAG_STYLES: Record<BlogArticle['tag'], { label: string; dark: string; light: string }> = {
   guide:   { label: '📖 Guide',   dark: 'bg-blue-400/10 text-blue-400',   light: 'bg-blue-50 text-blue-600' },
   city:    { label: '🏙️ City',    dark: 'bg-amber-400/10 text-amber-400', light: 'bg-amber-50 text-amber-600' },
   preview: { label: '⚽ Preview',  dark: 'bg-green-400/10 text-green-400', light: 'bg-green-50 text-green-700' },
@@ -142,7 +143,7 @@ const TAG_STYLES: Record<BlogArticle['tag'], { label: string; dark: string; ligh
   culture: { label: '🎭 Culture', dark: 'bg-rose-400/10 text-rose-400',   light: 'bg-rose-50 text-rose-600' },
 };
 
-const COMPETITION_BLOG: Record<string, BlogArticle[]> = {
+export const COMPETITION_BLOG: Record<string, BlogArticle[]> = {
   'fifa-world-cup-2026': [
     { id: 'b1', title: 'The Ultimate Fan Guide to World Cup 2026', excerpt: 'Everything you need to know about attending the first 48-team World Cup — venues, tickets, travel tips, and more across the US, Canada & Mexico.', author: 'Travel for Sport', date: '2026-01-15', readTime: '8 min', tag: 'guide', image: '🗺️' },
     { id: 'b2', title: 'Dallas: Where Southern Hospitality Meets World-Class Football', excerpt: 'AT&T Stadium and the surrounding city offer a unique blend of BBQ, culture, and sports. Here\'s your complete Dallas match-day guide.', author: 'City Desk', date: '2026-01-20', readTime: '6 min', tag: 'city', image: '🤠' },
@@ -152,14 +153,14 @@ const COMPETITION_BLOG: Record<string, BlogArticle[]> = {
     { id: 'b6', title: 'Group A Preview: Can Mexico Thrive on Home Soil?', excerpt: 'Mexico faces Germany in the opener — a rematch of the 2018 shock. We break down every team\'s chances in Group A.', author: 'Tactics Lab', date: '2026-02-01', readTime: '6 min', tag: 'preview', image: '⚽' },
     { id: 'b7', title: 'Group B Preview: USA vs Brazil — The Blockbuster Draw', excerpt: 'The hosts face a five-time champion. Can the USMNT pull off the upset? Plus Serbia and Morocco analysis.', author: 'Tactics Lab', date: '2026-02-03', readTime: '6 min', tag: 'preview', image: '🔥' },
     { id: 'b8', title: 'Toronto: Canada\'s Football Capital Gets a World Cup', excerpt: 'BMO Field and the city of Toronto prepare for their biggest ever sporting moment. Transit, food, and culture highlights.', author: 'City Desk', date: '2026-02-05', readTime: '5 min', tag: 'city', image: '🍁' },
-    { id: 'b9', title: 'Mexico City: Estadio Azteca\'s Third World Cup', excerpt: 'The legendary Azteca becomes the first stadium to host three World Cups. Explore the city\'s incredible food scene and match-day traditions.', author: 'City Desk', date: '2026-02-08', readTime: '7 min', tag: 'city', image: '🇲🇽' },
+    { id: 'b9', title: 'Mexico City: Estadio Azteca\'s Third World Cup', excerpt: 'The legendary Azteca becomes the first stadium to host three World Cups. Explore the city\'s incredible food scene and match-day traditions.', author: 'City Desk', date: '2026-02-08', readTime: '7 min', tag: 'city', image: '�️' },
     { id: 'b10', title: 'Flying Between Host Cities: Budget Airline Tips', excerpt: 'With 16 venues across three countries, smart travel planning is key. We compare flight routes, costs, and cross-border logistics.', author: 'Travel for Sport', date: '2026-02-10', readTime: '9 min', tag: 'travel', image: '✈️' },
     { id: 'b11', title: 'Philadelphia: History, Cheesesteaks & the Beautiful Game', excerpt: 'Lincoln Financial Field hosts Group E matches. Dive into Philly\'s best neighborhoods, food, and match-day energy.', author: 'City Desk', date: '2026-02-12', readTime: '5 min', tag: 'city', image: '🔔' },
     { id: 'b12', title: 'Seattle: The Emerald City\'s Football Fever', excerpt: 'Known for its passionate Sounders fans, Seattle and Lumen Field are ready to welcome the world.', author: 'City Desk', date: '2026-02-14', readTime: '5 min', tag: 'city', image: '☕' },
     { id: 'b13', title: 'World Cup Food Guide: What to Eat in Every Host City', excerpt: 'From Texas BBQ to Toronto poutine to Mexico City street tacos — your culinary guide to World Cup 2026.', author: 'Travel for Sport', date: '2026-02-15', readTime: '10 min', tag: 'culture', image: '🍕' },
   ],
   'premier-league': [
-    { id: 'pl1', title: 'Premier League 2025-26 Season Preview', excerpt: 'Man City chase a fifth straight title, while Arsenal and Liverpool look to dethrone them. Full season breakdown.', author: 'Tactics Lab', date: '2025-08-10', readTime: '8 min', tag: 'preview', image: '🏴' },
+    { id: 'pl1', title: 'Premier League 2025-26 Season Preview', excerpt: 'Man City chase a fifth straight title, while Arsenal and Liverpool look to dethrone them. Full season breakdown.', author: 'Tactics Lab', date: '2025-08-10', readTime: '8 min', tag: 'preview', image: '�️' },
     { id: 'pl2', title: 'London Derby Day: The Complete Fan Guide', excerpt: 'Arsenal vs Tottenham, Chelsea vs West Ham — navigating London\'s pubs, transit, and stadiums on derby day.', author: 'City Desk', date: '2025-09-01', readTime: '6 min', tag: 'city', image: '🏟️' },
     { id: 'pl3', title: 'Manchester: Two Clubs, One Football-Mad City', excerpt: 'Old Trafford and the Etihad — visiting Manchester for the ultimate Premier League experience.', author: 'City Desk', date: '2025-09-15', readTime: '5 min', tag: 'city', image: '🐝' },
     { id: 'pl4', title: 'Visiting Anfield: A First-Timer\'s Guide to Liverpool', excerpt: 'From the Shankly Gates to You\'ll Never Walk Alone — everything you need for an unforgettable Anfield trip.', author: 'City Desk', date: '2025-10-01', readTime: '6 min', tag: 'city', image: '🔴' },
@@ -193,45 +194,45 @@ interface CompTeam {
 const COMPETITION_TEAM_OVERRIDES: Record<string, CompTeam[]> = {
   'fifa-world-cup-2026': [
     // Group A
-    { name: 'Mexico', badge: '🇲🇽', city: 'Mexico City, Mexico', stadium: 'Estadio Azteca', founded: 1927, category: 'Group A' },
-    { name: 'Germany', badge: '🇩🇪', city: 'Frankfurt, Germany', stadium: 'Deutsche Bank Park', founded: 1900, category: 'Group A' },
-    { name: 'Ecuador', badge: '🇪🇨', city: 'Quito, Ecuador', stadium: 'Estadio Olímpico Atahualpa', founded: 1925, category: 'Group A' },
-    { name: 'Japan', badge: '🇯🇵', city: 'Tokyo, Japan', stadium: 'National Stadium', founded: 1921, category: 'Group A' },
+    { name: 'Mexico', badge: 'mx', city: 'Mexico City, Mexico', stadium: 'Estadio Azteca', founded: 1927, category: 'Group A' },
+    { name: 'Germany', badge: 'de', city: 'Frankfurt, Germany', stadium: 'Deutsche Bank Park', founded: 1900, category: 'Group A' },
+    { name: 'Ecuador', badge: 'ec', city: 'Quito, Ecuador', stadium: 'Estadio Olímpico Atahualpa', founded: 1925, category: 'Group A' },
+    { name: 'Japan', badge: 'jp', city: 'Tokyo, Japan', stadium: 'National Stadium', founded: 1921, category: 'Group A' },
     // Group B
-    { name: 'USA', badge: '🇺🇸', city: 'Chicago, IL', stadium: 'Soldier Field', founded: 1913, category: 'Group B' },
-    { name: 'Brazil', badge: '🇧🇷', city: 'Rio de Janeiro, Brazil', stadium: 'Maracanã', founded: 1914, category: 'Group B' },
-    { name: 'Serbia', badge: '🇷🇸', city: 'Belgrade, Serbia', stadium: 'Rajko Mitić Stadium', founded: 1919, category: 'Group B' },
-    { name: 'Morocco', badge: '🇲🇦', city: 'Casablanca, Morocco', stadium: 'Stade Mohammed V', founded: 1956, category: 'Group B' },
+    { name: 'USA', badge: 'us', city: 'Chicago, IL', stadium: 'Soldier Field', founded: 1913, category: 'Group B' },
+    { name: 'Brazil', badge: 'br', city: 'Rio de Janeiro, Brazil', stadium: 'Maracanã', founded: 1914, category: 'Group B' },
+    { name: 'Serbia', badge: 'rs', city: 'Belgrade, Serbia', stadium: 'Rajko Mitić Stadium', founded: 1919, category: 'Group B' },
+    { name: 'Morocco', badge: 'ma', city: 'Casablanca, Morocco', stadium: 'Stade Mohammed V', founded: 1956, category: 'Group B' },
     // Group C
-    { name: 'England', badge: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', city: 'London, England', stadium: 'Wembley', founded: 1863, category: 'Group C' },
-    { name: 'Spain', badge: '🇪🇸', city: 'Madrid, Spain', stadium: 'Santiago Bernabéu', founded: 1920, category: 'Group C' },
-    { name: 'South Korea', badge: '🇰🇷', city: 'Seoul, South Korea', stadium: 'Seoul World Cup Stadium', founded: 1928, category: 'Group C' },
-    { name: 'Saudi Arabia', badge: '🇸🇦', city: 'Riyadh, Saudi Arabia', stadium: 'King Fahd Stadium', founded: 1956, category: 'Group C' },
+    { name: 'England', badge: 'gb-eng', city: 'London, England', stadium: 'Wembley', founded: 1863, category: 'Group C' },
+    { name: 'Spain', badge: 'es', city: 'Madrid, Spain', stadium: 'Santiago Bernabéu', founded: 1920, category: 'Group C' },
+    { name: 'South Korea', badge: 'kr', city: 'Seoul, South Korea', stadium: 'Seoul World Cup Stadium', founded: 1928, category: 'Group C' },
+    { name: 'Saudi Arabia', badge: 'sa', city: 'Riyadh, Saudi Arabia', stadium: 'King Fahd Stadium', founded: 1956, category: 'Group C' },
     // Group D
-    { name: 'France', badge: '🇫🇷', city: 'Paris, France', stadium: 'Stade de France', founded: 1919, category: 'Group D' },
-    { name: 'Argentina', badge: '🇦🇷', city: 'Buenos Aires, Argentina', stadium: 'Estadio Monumental', founded: 1893, category: 'Group D' },
-    { name: 'Nigeria', badge: '🇳🇬', city: 'Lagos, Nigeria', stadium: 'Teslim Balogun Stadium', founded: 1945, category: 'Group D' },
-    { name: 'Australia', badge: '🇦🇺', city: 'Sydney, Australia', stadium: 'Stadium Australia', founded: 1922, category: 'Group D' },
+    { name: 'France', badge: 'fr', city: 'Paris, France', stadium: 'Stade de France', founded: 1919, category: 'Group D' },
+    { name: 'Argentina', badge: 'ar', city: 'Buenos Aires, Argentina', stadium: 'Estadio Monumental', founded: 1893, category: 'Group D' },
+    { name: 'Nigeria', badge: 'ng', city: 'Lagos, Nigeria', stadium: 'Teslim Balogun Stadium', founded: 1945, category: 'Group D' },
+    { name: 'Australia', badge: 'au', city: 'Sydney, Australia', stadium: 'Stadium Australia', founded: 1922, category: 'Group D' },
     // Group E
-    { name: 'Netherlands', badge: '🇳🇱', city: 'Amsterdam, Netherlands', stadium: 'Johan Cruyff Arena', founded: 1889, category: 'Group E' },
-    { name: 'Portugal', badge: '🇵🇹', city: 'Lisbon, Portugal', stadium: 'Estádio da Luz', founded: 1914, category: 'Group E' },
-    { name: 'Canada', badge: '🇨🇦', city: 'Toronto, Canada', stadium: 'BMO Field', founded: 1986, category: 'Group E' },
-    { name: 'Senegal', badge: '🇸🇳', city: 'Dakar, Senegal', stadium: 'Stade Abdoulaye Wade', founded: 1960, category: 'Group E' },
+    { name: 'Netherlands', badge: 'nl', city: 'Amsterdam, Netherlands', stadium: 'Johan Cruyff Arena', founded: 1889, category: 'Group E' },
+    { name: 'Portugal', badge: 'pt', city: 'Lisbon, Portugal', stadium: 'Estádio da Luz', founded: 1914, category: 'Group E' },
+    { name: 'Canada', badge: 'ca', city: 'Toronto, Canada', stadium: 'BMO Field', founded: 1986, category: 'Group E' },
+    { name: 'Senegal', badge: 'sn', city: 'Dakar, Senegal', stadium: 'Stade Abdoulaye Wade', founded: 1960, category: 'Group E' },
     // Group F
-    { name: 'Belgium', badge: '🇧🇪', city: 'Brussels, Belgium', stadium: 'King Baudouin Stadium', founded: 1895, category: 'Group F' },
-    { name: 'Colombia', badge: '🇨🇴', city: 'Bogotá, Colombia', stadium: 'Estadio El Campín', founded: 1924, category: 'Group F' },
-    { name: 'Ghana', badge: '🇬🇭', city: 'Accra, Ghana', stadium: 'Accra Sports Stadium', founded: 1957, category: 'Group F' },
-    { name: 'Uruguay', badge: '🇺🇾', city: 'Montevideo, Uruguay', stadium: 'Estadio Centenario', founded: 1900, category: 'Group F' },
+    { name: 'Belgium', badge: 'be', city: 'Brussels, Belgium', stadium: 'King Baudouin Stadium', founded: 1895, category: 'Group F' },
+    { name: 'Colombia', badge: 'co', city: 'Bogotá, Colombia', stadium: 'Estadio El Campín', founded: 1924, category: 'Group F' },
+    { name: 'Ghana', badge: 'gh', city: 'Accra, Ghana', stadium: 'Accra Sports Stadium', founded: 1957, category: 'Group F' },
+    { name: 'Uruguay', badge: 'uy', city: 'Montevideo, Uruguay', stadium: 'Estadio Centenario', founded: 1900, category: 'Group F' },
     // Group G
-    { name: 'Italy', badge: '🇮🇹', city: 'Rome, Italy', stadium: 'Stadio Olimpico', founded: 1898, category: 'Group G' },
-    { name: 'Croatia', badge: '🇭🇷', city: 'Zagreb, Croatia', stadium: 'Stadion Maksimir', founded: 1912, category: 'Group G' },
-    { name: 'Chile', badge: '🇨🇱', city: 'Santiago, Chile', stadium: 'Estadio Nacional', founded: 1895, category: 'Group G' },
-    { name: 'Iran', badge: '🇮🇷', city: 'Tehran, Iran', stadium: 'Azadi Stadium', founded: 1920, category: 'Group G' },
+    { name: 'Italy', badge: 'it', city: 'Rome, Italy', stadium: 'Stadio Olimpico', founded: 1898, category: 'Group G' },
+    { name: 'Croatia', badge: 'hr', city: 'Zagreb, Croatia', stadium: 'Stadion Maksimir', founded: 1912, category: 'Group G' },
+    { name: 'Chile', badge: 'cl', city: 'Santiago, Chile', stadium: 'Estadio Nacional', founded: 1895, category: 'Group G' },
+    { name: 'Iran', badge: 'ir', city: 'Tehran, Iran', stadium: 'Azadi Stadium', founded: 1920, category: 'Group G' },
     // Group H
-    { name: 'Denmark', badge: '🇩🇰', city: 'Copenhagen, Denmark', stadium: 'Parken Stadium', founded: 1889, category: 'Group H' },
-    { name: 'Switzerland', badge: '🇨🇭', city: 'Bern, Switzerland', stadium: 'Wankdorf Stadium', founded: 1895, category: 'Group H' },
-    { name: 'Poland', badge: '🇵🇱', city: 'Warsaw, Poland', stadium: 'PGE Narodowy', founded: 1919, category: 'Group H' },
-    { name: 'Cameroon', badge: '🇨🇲', city: 'Yaoundé, Cameroon', stadium: 'Stade Ahmadou Ahidjo', founded: 1959, category: 'Group H' },
+    { name: 'Denmark', badge: 'dk', city: 'Copenhagen, Denmark', stadium: 'Parken Stadium', founded: 1889, category: 'Group H' },
+    { name: 'Switzerland', badge: 'ch', city: 'Bern, Switzerland', stadium: 'Wankdorf Stadium', founded: 1895, category: 'Group H' },
+    { name: 'Poland', badge: 'pl', city: 'Warsaw, Poland', stadium: 'PGE Narodowy', founded: 1919, category: 'Group H' },
+    { name: 'Cameroon', badge: 'cm', city: 'Yaoundé, Cameroon', stadium: 'Stade Ahmadou Ahidjo', founded: 1959, category: 'Group H' },
   ],
 };
 
@@ -745,7 +746,7 @@ export function Competition() {
                           isDark ? 'bg-white/5' : 'bg-gray-50'
                         }`}
                       >
-                        {team.badge}
+                        <TeamBadge badge={team.badge} size={28} />
                       </div>
                       <div className="min-w-0 flex-1">
                         <h3

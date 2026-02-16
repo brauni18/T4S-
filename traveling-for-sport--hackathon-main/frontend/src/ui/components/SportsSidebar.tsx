@@ -38,20 +38,20 @@ const COMPETITIONS: SportCategory[] = [
     leagues: [
       { name: 'FIFA World Cup 2026', emoji: '🏆', slug: 'fifa-world-cup-2026' },
       { name: 'UEFA Champions League', emoji: '🌟', slug: 'uefa-champions-league' },
-      { name: 'Premier League', emoji: '🏴', slug: 'premier-league' },
-      { name: 'La Liga', emoji: '🇪🇸', slug: 'la-liga' },
-      { name: 'Serie A', emoji: '🇮🇹', slug: 'serie-a' },
-      { name: 'Bundesliga', emoji: '🇩🇪', slug: 'bundesliga' },
-      { name: 'Ligue 1', emoji: '🇫🇷', slug: 'ligue-1' },
-      { name: 'MLS', emoji: '🇺🇸', slug: 'mls' },
+      { name: 'Premier League', emoji: '⚽', slug: 'premier-league' },
+      { name: 'La Liga', emoji: '⚽', slug: 'la-liga' },
+      { name: 'Serie A', emoji: '⚽', slug: 'serie-a' },
+      { name: 'Bundesliga', emoji: '⚽', slug: 'bundesliga' },
+      { name: 'Ligue 1', emoji: '⚽', slug: 'ligue-1' },
+      { name: 'MLS', emoji: '⚽', slug: 'mls' },
     ],
   },
   {
     name: 'Basketball',
     icon: '🏀',
     leagues: [
-      { name: 'NBA', emoji: '🇺🇸', slug: 'nba' },
-      { name: 'EuroLeague', emoji: '🇪🇺', slug: 'euroleague' },
+      { name: 'NBA', emoji: '�', slug: 'nba' },
+      { name: 'EuroLeague', emoji: '🏀', slug: 'euroleague' },
       { name: 'FIBA World Cup', emoji: '🏆', slug: 'fiba-world-cup' },
     ],
   },
@@ -59,7 +59,7 @@ const COMPETITIONS: SportCategory[] = [
     name: 'American Football',
     icon: '🏈',
     leagues: [
-      { name: 'NFL', emoji: '🇺🇸', slug: 'nfl' },
+      { name: 'NFL', emoji: '�', slug: 'nfl' },
       { name: 'College Football', emoji: '🎓', slug: 'college-football' },
     ],
   },
@@ -67,7 +67,7 @@ const COMPETITIONS: SportCategory[] = [
     name: 'Baseball',
     icon: '⚾',
     leagues: [
-      { name: 'MLB', emoji: '🇺🇸', slug: 'mlb' },
+      { name: 'MLB', emoji: '⚾', slug: 'mlb' },
       { name: 'World Baseball Classic', emoji: '🏆', slug: 'world-baseball-classic' },
     ],
   },
@@ -84,7 +84,7 @@ const COMPETITIONS: SportCategory[] = [
     name: 'Hockey',
     icon: '🏒',
     leagues: [
-      { name: 'NHL', emoji: '🇺🇸', slug: 'nhl' },
+      { name: 'NHL', emoji: '�', slug: 'nhl' },
       { name: 'IIHF World Championship', emoji: '🏆', slug: 'iihf-world-championship' },
     ],
   },
@@ -93,7 +93,7 @@ const COMPETITIONS: SportCategory[] = [
     icon: '🏉',
     leagues: [
       { name: 'Rugby World Cup', emoji: '🏆', slug: 'rugby-world-cup' },
-      { name: 'Six Nations', emoji: '🇪🇺', slug: 'six-nations' },
+      { name: 'Six Nations', emoji: '�', slug: 'six-nations' },
     ],
   },
   {
@@ -101,8 +101,8 @@ const COMPETITIONS: SportCategory[] = [
     icon: '🏏',
     leagues: [
       { name: 'ICC Cricket World Cup', emoji: '🏆', slug: 'icc-cricket-world-cup' },
-      { name: 'IPL', emoji: '🇮🇳', slug: 'ipl' },
-      { name: 'The Ashes', emoji: '🇬🇧', slug: 'the-ashes' },
+      { name: 'IPL', emoji: '�', slug: 'ipl' },
+      { name: 'The Ashes', emoji: '🏏', slug: 'the-ashes' },
     ],
   },
 ];
@@ -122,8 +122,8 @@ const NEWS_BY_SPORT: { sport: string; icon: string; items: NewsItem[] }[] = [
     items: [
       { title: 'World Cup 2026 Draw Confirmed', emoji: '🏆', date: 'Feb 14' },
       { title: 'Champions League QF matchups set', emoji: '🌟', date: 'Feb 13' },
-      { title: 'Premier League title race heats up', emoji: '🏴', date: 'Feb 12' },
-      { title: 'MLS 2026 season kicks off March 1', emoji: '🇺🇸', date: 'Feb 10' },
+      { title: 'Premier League title race heats up', emoji: '⚽', date: 'Feb 12' },
+      { title: 'MLS 2026 season kicks off March 1', emoji: '⚽', date: 'Feb 10' },
     ],
   },
   {
@@ -158,59 +158,16 @@ const NEWS_BY_SPORT: { sport: string; icon: string; items: NewsItem[] }[] = [
   },
 ];
 
-// ── Blog article links ──────────────────────────────────────
-
-interface BlogLink {
-  title: string;
-  tag: string;
-  competitionSlug: string;
-}
-
-const BLOG_CATEGORIES: { category: string; emoji: string; items: BlogLink[] }[] = [
-  {
-    category: 'City Guides',
-    emoji: '🏙️',
-    items: [
-      { title: 'Dallas Match-Day Guide', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
-      { title: 'NYC / MetLife Experience', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
-      { title: 'LA & SoFi Stadium', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
-      { title: 'Miami: Heat & Passion', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
-      { title: 'Toronto Fan Guide', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
-      { title: 'Mexico City & Azteca', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
-    ],
-  },
-  {
-    category: 'Match Previews',
-    emoji: '⚽',
-    items: [
-      { title: 'Group A: Mexico vs Germany', tag: 'preview', competitionSlug: 'fifa-world-cup-2026' },
-      { title: 'Group B: USA vs Brazil', tag: 'preview', competitionSlug: 'fifa-world-cup-2026' },
-      { title: 'PL Season Preview', tag: 'preview', competitionSlug: 'premier-league' },
-      { title: 'NBA Contenders & Pretenders', tag: 'preview', competitionSlug: 'nba' },
-    ],
-  },
-  {
-    category: 'Travel & Culture',
-    emoji: '✈️',
-    items: [
-      { title: 'Budget Flights Between Host Cities', tag: 'travel', competitionSlug: 'fifa-world-cup-2026' },
-      { title: 'World Cup Food Guide', tag: 'culture', competitionSlug: 'fifa-world-cup-2026' },
-      { title: 'Best Away-Day UCL Cities', tag: 'travel', competitionSlug: 'uefa-champions-league' },
-      { title: 'NFL Tailgating 101', tag: 'culture', competitionSlug: 'nfl' },
-    ],
-  },
-];
-
-// Country‑flag lookup for "My Teams" display
-const TEAM_FLAGS: Record<string, string> = {
-  USA: '🇺🇸', Mexico: '🇲🇽', Canada: '🇨🇦', Argentina: '🇦🇷', Brazil: '🇧🇷',
-  Chile: '🇨🇱', Colombia: '🇨🇴', Uruguay: '🇺🇾',
-  England: '🏴', Germany: '🇩🇪', France: '🇫🇷', Spain: '🇪🇸', Italy: '🇮🇹',
-  Netherlands: '🇳🇱', Portugal: '🇵🇹', Belgium: '🇧🇪', Croatia: '🇭🇷',
-  Poland: '🇵🇱', Denmark: '🇩🇰', Switzerland: '🇨🇭', Austria: '🇦🇹',
-  'Czech Republic': '🇨🇿', Morocco: '🇲🇦', Nigeria: '🇳🇬', Ghana: '🇬🇭',
-  Senegal: '🇸🇳', Japan: '🇯🇵', 'South Korea': '🇰🇷', Iran: '🇮🇷',
-  'Saudi Arabia': '🇸🇦', Qatar: '🇶🇦', Australia: '🇦🇺',
+// Country‑flag lookup for "My Teams" display (ISO 3166-1 alpha-2 codes → flagcdn.com)
+const TEAM_FLAG_CODES: Record<string, string> = {
+  USA: 'us', Mexico: 'mx', Canada: 'ca', Argentina: 'ar', Brazil: 'br',
+  Chile: 'cl', Colombia: 'co', Uruguay: 'uy',
+  England: 'gb-eng', Germany: 'de', France: 'fr', Spain: 'es', Italy: 'it',
+  Netherlands: 'nl', Portugal: 'pt', Belgium: 'be', Croatia: 'hr',
+  Poland: 'pl', Denmark: 'dk', Switzerland: 'ch', Austria: 'at',
+  'Czech Republic': 'cz', Morocco: 'ma', Nigeria: 'ng', Ghana: 'gh',
+  Senegal: 'sn', Japan: 'jp', 'South Korea': 'kr', Iran: 'ir',
+  'Saudi Arabia': 'sa', Qatar: 'qa', Australia: 'au',
 };
 
 // ── Component ───────────────────────────────────────────────
@@ -219,7 +176,7 @@ interface SportsSidebarProps {
   isDark?: boolean;
 }
 
-type SectionKey = 'competitions' | 'teams' | 'myTeams' | 'news' | 'blog';
+type SectionKey = 'competitions' | 'teams' | 'myTeams' | 'news';
 
 export function SportsSidebar({ isDark = true }: SportsSidebarProps) {
   const favoriteTeams = useAppSelector((s) => s.user.favoriteTeams);
@@ -384,19 +341,30 @@ export function SportsSidebar({ isDark = true }: SportsSidebarProps) {
               No favorite teams yet — pick some on the Welcome page!
             </p>
           ) : (
-            favoriteTeams.map((team) => (
-              <div
-                key={team}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors ${
-                  isDark
-                    ? 'text-gray-300 hover:text-white hover:bg-white/5'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                <span className="text-sm">{TEAM_FLAGS[team] ?? '⚽'}</span>
-                <span className="font-medium">{team}</span>
-              </div>
-            ))
+            favoriteTeams.map((team) => {
+              const code = TEAM_FLAG_CODES[team];
+              return (
+                <div
+                  key={team}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors ${
+                    isDark
+                      ? 'text-gray-300 hover:text-white hover:bg-white/5'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  {code ? (
+                    <img
+                      src={`https://flagcdn.com/w40/${code}.png`}
+                      alt={team}
+                      className="w-5 h-auto rounded-sm object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm">⚽</span>
+                  )}
+                  <span className="font-medium">{team}</span>
+                </div>
+              );
+            })
           )}
         </div>
       )}
@@ -440,37 +408,17 @@ export function SportsSidebar({ isDark = true }: SportsSidebarProps) {
       )}
 
       {/* ─── Blog ─────────────────────────────────── */}
-      {sectionBtn(
-        'blog',
-        <BookOpen className={`size-4 ${isDark ? 'text-purple-400' : 'text-purple-500'}`} />,
-        'Blog',
-      )}
-      {openSections.has('blog') && (
-        <div className="ml-2 mt-1 mb-2 space-y-0.5">
-          {BLOG_CATEGORIES.map((cat) => (
-            <div key={cat.category}>
-              {groupBtn(cat.emoji, cat.category)}
-              {openGroups.has(cat.category) && (
-                <div className="ml-7 mt-0.5 mb-1 space-y-0.5">
-                  {cat.items.map((item) => (
-                    <Link
-                      key={item.title}
-                      to={`/competition/${item.competitionSlug}?tab=blog`}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
-                        isDark
-                          ? 'text-gray-400 hover:text-white hover:bg-white/5'
-                          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
-                      }`}
-                    >
-                      <span className="line-clamp-1">{item.title}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      <Link
+        to="/blog"
+        className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors text-left ${
+          isDark
+            ? 'text-gray-400 hover:text-white hover:bg-white/5'
+            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+        }`}
+      >
+        <BookOpen className={`size-4 ${isDark ? 'text-purple-400' : 'text-purple-500'}`} />
+        <span className="flex-1">Blog</span>
+      </Link>
 
       {/* ─── Separator ────────────────────────────── */}
       <div className={`my-3 border-t ${isDark ? 'border-white/10' : 'border-gray-200'}`} />

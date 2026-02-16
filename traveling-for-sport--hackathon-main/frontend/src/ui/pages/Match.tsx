@@ -197,66 +197,66 @@ function getTeamAbbr(teamName: string): string {
   return first.slice(0, 3).toUpperCase();
 }
 
-const TEAM_FLAGS: Record<string, string> = {
-  'Mexico': '🇲🇽',
-  'Germany': '🇩🇪',
-  'USA': '🇺🇸',
-  'United States': '🇺🇸',
-  'Brazil': '🇧🇷',
-  'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
-  'Japan': '🇯🇵',
-  'France': '🇫🇷',
-  'Argentina': '🇦🇷',
-  'Spain': '🇪🇸',
-  'Netherlands': '🇳🇱',
-  'Canada': '🇨🇦',
-  'Morocco': '🇲🇦',
-  'Portugal': '🇵🇹',
-  'South Korea': '🇰🇷',
-  'Belgium': '🇧🇪',
-  'Nigeria': '🇳🇬',
-  'Italy': '🇮🇹',
-  'Croatia': '🇭🇷',
-  'Uruguay': '🇺🇾',
-  'Colombia': '🇨🇴',
-  'Senegal': '🇸🇳',
-  'Australia': '🇦🇺',
-  'Switzerland': '🇨🇭',
-  'Denmark': '🇩🇰',
-  'Poland': '🇵🇱',
-  'Wales': '🏴󠁧󠁢󠁷󠁬󠁳󠁿',
-  'Scotland': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
-  'Serbia': '🇷🇸',
-  'Ghana': '🇬🇭',
-  'Cameroon': '🇨🇲',
-  'Ecuador': '🇪🇨',
-  'Saudi Arabia': '🇸🇦',
-  'Iran': '🇮🇷',
-  'Tunisia': '🇹🇳',
-  'Costa Rica': '🇨🇷',
-  'Qatar': '🇶🇦',
-  'Chile': '🇨🇱',
-  'Paraguay': '🇵🇾',
-  'Peru': '🇵🇪',
-  'Sweden': '🇸🇪',
-  'Austria': '🇦🇹',
-  'Czech Republic': '🇨🇿',
-  'Turkey': '🇹🇷',
-  'Norway': '🇳🇴',
-  'Ireland': '🇮🇪',
-  'Egypt': '🇪🇬',
-  'Algeria': '🇩🇿',
-  'China': '🇨🇳',
-  'India': '🇮🇳',
-  'Honduras': '🇭🇳',
-  'Jamaica': '🇯🇲',
-  'Panama': '🇵🇦',
-  'El Salvador': '🇸🇻',
-  'New Zealand': '🇳🇿',
+const TEAM_FLAG_CODES: Record<string, string> = {
+  'Mexico': 'mx',
+  'Germany': 'de',
+  'USA': 'us',
+  'United States': 'us',
+  'Brazil': 'br',
+  'England': 'gb-eng',
+  'Japan': 'jp',
+  'France': 'fr',
+  'Argentina': 'ar',
+  'Spain': 'es',
+  'Netherlands': 'nl',
+  'Canada': 'ca',
+  'Morocco': 'ma',
+  'Portugal': 'pt',
+  'South Korea': 'kr',
+  'Belgium': 'be',
+  'Nigeria': 'ng',
+  'Italy': 'it',
+  'Croatia': 'hr',
+  'Uruguay': 'uy',
+  'Colombia': 'co',
+  'Senegal': 'sn',
+  'Australia': 'au',
+  'Switzerland': 'ch',
+  'Denmark': 'dk',
+  'Poland': 'pl',
+  'Wales': 'gb-wls',
+  'Scotland': 'gb-sct',
+  'Serbia': 'rs',
+  'Ghana': 'gh',
+  'Cameroon': 'cm',
+  'Ecuador': 'ec',
+  'Saudi Arabia': 'sa',
+  'Iran': 'ir',
+  'Tunisia': 'tn',
+  'Costa Rica': 'cr',
+  'Qatar': 'qa',
+  'Chile': 'cl',
+  'Paraguay': 'py',
+  'Peru': 'pe',
+  'Sweden': 'se',
+  'Austria': 'at',
+  'Czech Republic': 'cz',
+  'Turkey': 'tr',
+  'Norway': 'no',
+  'Ireland': 'ie',
+  'Egypt': 'eg',
+  'Algeria': 'dz',
+  'China': 'cn',
+  'India': 'in',
+  'Honduras': 'hn',
+  'Jamaica': 'jm',
+  'Panama': 'pa',
+  'El Salvador': 'sv',
+  'New Zealand': 'nz',
 };
 
-function getTeamFlag(teamName: string): string | null {
-  return TEAM_FLAGS[teamName] ?? null;
+function getTeamFlagCode(teamName: string): string | null {
+  return TEAM_FLAG_CODES[teamName] ?? null;
 }
 
 const TRIP_OPTIONS = [
@@ -532,8 +532,8 @@ export function Match() {
   const { match, forumPosts } = data;
   const homeAbbr = getTeamAbbr(match.homeTeam);
   const awayAbbr = getTeamAbbr(match.awayTeam);
-  const homeFlag = getTeamFlag(match.homeTeam);
-  const awayFlag = getTeamFlag(match.awayTeam);
+  const homeFlag = getTeamFlagCode(match.homeTeam);
+  const awayFlag = getTeamFlagCode(match.awayTeam);
   const matchDate = new Date(match.date);
   const timeStr = matchDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const dateStr = matchDate.toLocaleDateString(undefined, {
@@ -657,7 +657,7 @@ export function Match() {
                 <div className="flex w-full items-center justify-between gap-4">
                   <div className="flex flex-col items-center gap-1.5">
                     <div className={`flex h-14 w-14 items-center justify-center rounded-full text-base font-bold ${isDark ? 'bg-[#3a3a3a] text-white' : 'bg-gray-100 text-gray-900'}`}>
-                      {homeFlag ? <span className="text-3xl leading-none">{homeFlag}</span> : homeAbbr}
+                      {homeFlag ? <img src={`https://flagcdn.com/w80/${homeFlag}.png`} alt={match.homeTeam} className="w-10 h-auto rounded-sm object-cover" /> : homeAbbr}
                     </div>
                     <span className={`text-center text-xs font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{match.homeTeam}</span>
                   </div>
@@ -671,7 +671,7 @@ export function Match() {
 
                   <div className="flex flex-col items-center gap-1.5">
                     <div className={`flex h-14 w-14 items-center justify-center rounded-full text-base font-bold ${isDark ? 'bg-[#3a3a3a] text-white' : 'bg-gray-100 text-gray-900'}`}>
-                      {awayFlag ? <span className="text-3xl leading-none">{awayFlag}</span> : awayAbbr}
+                      {awayFlag ? <img src={`https://flagcdn.com/w80/${awayFlag}.png`} alt={match.awayTeam} className="w-10 h-auto rounded-sm object-cover" /> : awayAbbr}
                     </div>
                     <span className={`text-center text-xs font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{match.awayTeam}</span>
                   </div>

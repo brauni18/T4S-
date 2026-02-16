@@ -14,7 +14,7 @@ const KNOWLEDGE: { patterns: RegExp; reply: string }[] = [
   {
     patterns: /world\s*cup.*(venue|stadium|where|cities|host)/i,
     reply:
-      '🏟️ The FIFA World Cup 2026 will be hosted across **16 venues** in 3 countries:\n\n🇺🇸 **USA** — AT&T Stadium (Dallas), MetLife Stadium (NYC), SoFi Stadium (LA), Hard Rock Stadium (Miami), Lincoln Financial Field (Philadelphia), Lumen Field (Seattle), Levi\'s Stadium (San Francisco), NRG Stadium (Houston), Mercedes-Benz Stadium (Atlanta), Arrowhead Stadium (Kansas City), Gillette Stadium (Boston)\n🇲🇽 **Mexico** — Estadio Azteca (Mexico City), Estadio BBVA (Monterrey), Estadio Akron (Guadalajara)\n🇨🇦 **Canada** — BMO Field (Toronto), BC Place (Vancouver)',
+      '🏟️ The FIFA World Cup 2026 will be hosted across **16 venues** in 3 countries:\n\n**USA** — AT&T Stadium (Dallas), MetLife Stadium (NYC), SoFi Stadium (LA), Hard Rock Stadium (Miami), Lincoln Financial Field (Philadelphia), Lumen Field (Seattle), Levi\'s Stadium (San Francisco), NRG Stadium (Houston), Mercedes-Benz Stadium (Atlanta), Arrowhead Stadium (Kansas City), Gillette Stadium (Boston)\n**Mexico** — Estadio Azteca (Mexico City), Estadio BBVA (Monterrey), Estadio Akron (Guadalajara)\n**Canada** — BMO Field (Toronto), BC Place (Vancouver)',
   },
   {
     patterns: /world\s*cup.*(date|when|schedule|start)/i,
@@ -49,7 +49,7 @@ const KNOWLEDGE: { patterns: RegExp; reply: string }[] = [
   {
     patterns: /mexico\s*city|azteca|cdmx/i,
     reply:
-      '🇲🇽 **Mexico City** hosts the **Opening Match** at the legendary Estadio Azteca (cap. 87,000) — its 3rd World Cup!\n\n✈️ **Getting there:** MEX airport, take the Metro or Uber.\n🌮 **Must-try:** Street tacos in Coyoacán, Pujol (fine dining), churros at El Moro.\n🏨 **Stay:** Roma Norte or Condesa for walkability and atmosphere.\n🎭 **Don\'t miss:** Chapultepec Castle, Frida Kahlo Museum, Lucha Libre at Arena México!',
+      '� **Mexico City** hosts the **Opening Match** at the legendary Estadio Azteca (cap. 87,000) — its 3rd World Cup!\n\n✈️ **Getting there:** MEX airport, take the Metro or Uber.\n🌮 **Must-try:** Street tacos in Coyoacán, Pujol (fine dining), churros at El Moro.\n🏨 **Stay:** Roma Norte or Condesa for walkability and atmosphere.\n🎭 **Don\'t miss:** Chapultepec Castle, Frida Kahlo Museum, Lucha Libre at Arena México!',
   },
   {
     patterns: /toronto|bmo\s*field/i,
@@ -59,7 +59,7 @@ const KNOWLEDGE: { patterns: RegExp; reply: string }[] = [
   {
     patterns: /(usa|usmnt|us\s*team).*(chance|win|predict|group)/i,
     reply:
-      '🇺🇸 The **USMNT** is in Group B with Brazil, Serbia, and Morocco. It\'ll be tough — but home advantage is massive. Key players to watch: Christian Pulisic, Gio Reyna, and the young stars coming through MLS.\n\n**Prediction:** They should advance from the group but will need to be at their best against Brazil!',
+      'The **USMNT** is in Group B with Brazil, Serbia, and Morocco. It\'ll be tough — but home advantage is massive. Key players to watch: Christian Pulisic, Gio Reyna, and the young stars coming through MLS.\n\n**Prediction:** They should advance from the group but will need to be at their best against Brazil!',
   },
   {
     patterns: /travel\s*tip|packing|what\s*to\s*bring/i,
@@ -79,7 +79,7 @@ const KNOWLEDGE: { patterns: RegExp; reply: string }[] = [
   {
     patterns: /premier\s*league|epl/i,
     reply:
-      '🏴 **Premier League 2025-26** — Man City, Arsenal, and Liverpool are in a three-way title race. Check the Premier League competition page for match schedules, London derby guides, and blog articles!',
+      '⚽ **Premier League 2025-26** — Man City, Arsenal, and Liverpool are in a three-way title race. Check the Premier League competition page for match schedules, London derby guides, and blog articles!',
   },
   {
     patterns: /hi|hello|hey|what can you|help/i,
