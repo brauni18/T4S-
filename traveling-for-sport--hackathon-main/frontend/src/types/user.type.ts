@@ -3,5 +3,5 @@ export type User = {
   name: string;
   favoriteTeams: string[];
   location: string;
-  isAdult18Plus?: boolean;
+  isAdult21Plus?: boolean;
 };
