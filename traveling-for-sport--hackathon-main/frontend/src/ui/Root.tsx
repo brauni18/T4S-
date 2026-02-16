@@ -1,7 +1,9 @@
 import { SocketProvider } from '@/sockets/SocketProvider';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { Link, Outlet, useLocation} from 'react-router';
-import { Sun, Moon, Search, X } from 'lucide-react';
+import { Sun, Moon, Search, X, MessageSquarePlus } from 'lucide-react';
+import { AiChatWidget } from '@/ui/components/AiChatWidget';
+import logoFull from '@/assets/logo_full.svg';
 
 export interface RootContext {
   isDark: boolean;
@@ -64,11 +66,8 @@ export function Root() {
           >
             <div className="flex items-center justify-between gap-4">
               {/* Logo */}
-              <Link to="/home" className="flex items-center gap-2 min-h-[44px] min-w-[44px] shrink-0">
-                <span className="text-xl">⚽</span>
-                <span className="text-lg font-bold text-[#22c55e] hidden sm:inline">
-                  Traveling for Sports
-                </span>
+              <Link to="/home" className="flex items-center min-h-[44px] min-w-[44px] shrink-0">
+                <img src={logoFull} alt="Traveling for Sports" className="h-8 w-auto" />
               </Link>
 
               {/* Search Bar */}
@@ -130,6 +129,22 @@ export function Root() {
                 </kbd>
               </form>
 
+              {/* Add Comment */}
+              <button
+                onClick={() => {
+                  // TODO: open comment modal / navigate to comment form
+                  console.log('Add comment clicked');
+                }}
+                className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-all shrink-0 ${
+                  isDark
+                    ? 'bg-[#22c55e]/15 text-[#22c55e] hover:bg-[#22c55e]/25'
+                    : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200'
+                }`}
+              >
+                <MessageSquarePlus className="size-4" />
+                <span className="hidden sm:inline">Add Comment</span>
+              </button>
+
               {/* Theme toggle */}
               <button
                 onClick={() => setIsDark((prev) => !prev)}
@@ -150,6 +165,8 @@ export function Root() {
         <main>
           <Outlet context={{ isDark, setIsDark } satisfies RootContext} />
         </main>
+
+        <AiChatWidget isDark={isDark} />
       </div>
     </SocketProvider>
   );

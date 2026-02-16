@@ -1,0 +1,14 @@
+<svg width="280" height="40" viewBox="0 0 280 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Skewed Mark Symbol -->
+  <g transform="translate(14, 20) skewX(-12)">
+    <rect x="-16" y="-16" width="32" height="32" rx="6" fill="#A3FF00"/>
+    <text x="0" y="1" fill="#0F141A" font-family="sans-serif" font-weight="900" font-size="11" text-anchor="middle" dominant-baseline="middle">TFS</text>
+    <!-- Simple Stadium Symbol (Circle + Lines) -->
+    <circle cx="0" cy="-6" r="3" stroke="#0F141A" stroke-width="1.5" fill="none" opacity="0.3"/>
+  </g>
+  
+  <!-- Full Integrated Typography -->
+  <text x="50" y="26" fill="white" font-family="sans-serif" font-weight="900" font-size="18" letter-spacing="-0.02em" style="text-transform: uppercase;">
+    TRAVELING FOR <tspan fill="#A3FF00">SPORTS</tspan>
+  </text>
+</svg>
