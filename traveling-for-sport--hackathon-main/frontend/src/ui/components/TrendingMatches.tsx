@@ -23,14 +23,14 @@ function MatchItem({ match, highlighted, isDark }: MatchItemProps) {
   return (
     <Link
       to={`/matches/${match._id}`}
-      className={`block p-3 rounded-lg border transition-colors cursor-pointer ${
+      className={`group relative block p-3 rounded-lg border transition-all hover:scale-[1.01] hover:shadow-md cursor-pointer ${
         highlighted
           ? isDark
             ? 'border-[#22c55e]/30 bg-[#22c55e]/5 hover:border-[#22c55e]/50'
             : 'border-green-300 bg-green-50 hover:border-green-400'
           : isDark
-          ? 'border-white/5 bg-white/[0.02] hover:border-white/20'
-          : 'border-gray-100 bg-gray-50 hover:border-gray-300'
+          ? 'border-white/5 bg-white/[0.02] hover:border-[#22c55e]/40'
+          : 'border-gray-100 bg-gray-50 hover:border-[#22c55e]/50'
       }`}
     >
       <div className="flex items-center justify-between mb-1.5">
@@ -57,6 +57,7 @@ function MatchItem({ match, highlighted, isDark }: MatchItemProps) {
           {match.stage}
         </span>
       )}
+      <div className="absolute inset-x-0 bottom-0 h-0.5 rounded-b-lg bg-[#22c55e] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
     </Link>
   );
 }

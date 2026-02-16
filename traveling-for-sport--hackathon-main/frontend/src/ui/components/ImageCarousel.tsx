@@ -81,7 +81,7 @@ export function UpcomingMatchesCarousel({ isDark = true }: UpcomingMatchesCarous
 
   return (
     <div
-      className="relative group"
+      className="relative group/carousel"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -106,7 +106,7 @@ export function UpcomingMatchesCarousel({ isDark = true }: UpcomingMatchesCarous
       <button
         onClick={() => scroll('left')}
         className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full
-          opacity-0 group-hover:opacity-100 transition-opacity ${
+          opacity-0 group-hover/carousel:opacity-100 transition-opacity ${
             isDark
               ? 'bg-black/60 hover:bg-black/80 text-white'
               : 'bg-white/80 hover:bg-white text-gray-800 shadow'
@@ -119,7 +119,7 @@ export function UpcomingMatchesCarousel({ isDark = true }: UpcomingMatchesCarous
       <button
         onClick={() => scroll('right')}
         className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full
-          opacity-0 group-hover:opacity-100 transition-opacity ${
+          opacity-0 group-hover/carousel:opacity-100 transition-opacity ${
             isDark
               ? 'bg-black/60 hover:bg-black/80 text-white'
               : 'bg-white/80 hover:bg-white text-gray-800 shadow'
@@ -137,10 +137,10 @@ export function UpcomingMatchesCarousel({ isDark = true }: UpcomingMatchesCarous
           <Link
             key={`${match._id}-${index}`}
             to={`/matches/${match._id}`}
-            className={`block h-44 w-72 rounded-xl flex-shrink-0 p-5 border cursor-pointer hover:scale-[1.02] transition-all duration-200 ${
+            className={`group/card relative block h-44 w-72 rounded-xl flex-shrink-0 p-5 border cursor-pointer hover:scale-[1.02] hover:shadow-lg transition-all duration-200 ${
               isDark 
-                ? 'bg-[#1a1a1a] border-white/10 hover:border-white/20' 
-                : 'bg-white border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md'
+                ? 'bg-[#1a1a1a] border-white/10 hover:border-[#22c55e]/40' 
+                : 'bg-white border-gray-200 hover:border-[#22c55e]/50 shadow-sm'
             }`}
           >
             {/* Stage badge */}
@@ -174,6 +174,8 @@ export function UpcomingMatchesCarousel({ isDark = true }: UpcomingMatchesCarous
               <MapPin className="size-3" />
               <span>{match.city}</span>
             </div>
+
+            <div className="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl bg-[#22c55e] scale-x-0 group-hover/card:scale-x-100 transition-transform origin-left" />
           </Link>
         ))}
       </div>

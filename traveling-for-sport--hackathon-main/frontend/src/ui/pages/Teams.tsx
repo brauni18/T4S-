@@ -1,6 +1,7 @@
 import { useParams, Link, useOutletContext } from 'react-router';
 import { useMemo, useState } from 'react';
 import { ArrowLeft, MapPin, Users, LayoutGrid, Layers, Search } from 'lucide-react';
+import { SportsSidebar } from '@/ui/components/SportsSidebar';
 import type { RootContext } from '@/ui/Root';
 
 // ── Team data with extra info for cards ─────────────────────
@@ -173,8 +174,13 @@ export const SPORT_SLUGS = SPORT_TEAMS.map((s) => ({ label: s.label, icon: s.ico
 
 // ── Reusable card component ─────────────────────────────────
 
-function TeamCardItem({ team, isDark }: { team: TeamCard; isDark: boolean }) {
+function teamToSlug(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+function TeamCardItem({ team, isDark, sportSlug }: { team: TeamCard; isDark: boolean; sportSlug: string }) {
   return (
+    <Link to={`/teams/${sportSlug}/${teamToSlug(team.name)}`} className="block">
     <div
       className={`group relative rounded-xl border p-5 transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer ${
         isDark
@@ -227,6 +233,7 @@ function TeamCardItem({ team, isDark }: { team: TeamCard; isDark: boolean }) {
 
       <div className="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl bg-[#22c55e] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
     </div>
+    </Link>
   );
 }
 
@@ -385,6 +392,16 @@ export function Teams() {
 
       {/* ─── Content ──────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
+          {/* Left sidebar */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-16">
+              <SportsSidebar isDark={isDark} />
+            </div>
+          </aside>
+
+          {/* Main content */}
+          <div className="min-w-0">
         {/* Category filter pills (shown in both tabs) */}
         <div className="flex flex-wrap items-center gap-2 mb-6">
           <button
@@ -466,7 +483,7 @@ export function Teams() {
                         );
                       })
                       .map((team) => (
-                        <TeamCardItem key={team.name} team={team} isDark={isDark} />
+                        <TeamCardItem key={team.name} team={team} isDark={isDark} sportSlug={sport.slug} />
                       ))}
                   </div>
                 </section>
@@ -477,10 +494,12 @@ export function Teams() {
           /* ── All Teams flat grid ── */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredTeams.map((team) => (
-              <TeamCardItem key={team.name} team={team} isDark={isDark} />
+              <TeamCardItem key={team.name} team={team} isDark={isDark} sportSlug={sport.slug} />
             ))}
           </div>
         )}
+          </div>
+        </div>
       </div>
     </div>
   );

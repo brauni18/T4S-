@@ -5,6 +5,7 @@ import { Sun, Moon, Search, X } from 'lucide-react';
 
 export interface RootContext {
   isDark: boolean;
+  setIsDark: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function Root() {
@@ -27,7 +28,8 @@ export function Root() {
   const isWelcomePage = location.pathname === '/';
   const isSignupPage = location.pathname === '/signup';
   const isMatchPage = location.pathname.startsWith('/matches/');
-  const hideNav = isWelcomePage || isSignupPage || isMatchPage;
+  const isTeamPage = /^\/teams\/[^/]+\/[^/]+/.test(location.pathname);
+  const hideNav = isWelcomePage || isSignupPage || isMatchPage || isTeamPage;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,7 +148,7 @@ export function Root() {
         )}
 
         <main>
-          <Outlet context={{ isDark } satisfies RootContext} />
+          <Outlet context={{ isDark, setIsDark } satisfies RootContext} />
         </main>
       </div>
     </SocketProvider>
