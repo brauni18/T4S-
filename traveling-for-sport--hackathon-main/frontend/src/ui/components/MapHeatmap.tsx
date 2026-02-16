@@ -30,6 +30,8 @@ export interface MapHeatmapProps {
   blur?: number;
   /** Called when the user clicks on the map (lat, lng, zoom). */
   onMapClick?: (lat: number, lng: number, zoom: number) => void;
+  /** Whether to use dark map tiles. Default true */
+  isDark?: boolean;
 }
 
 // leaflet.heat attaches L.heatLayer at runtime; TypeScript doesn't know it
@@ -115,7 +117,8 @@ export function MapHeatmap({
   className = '',
   radius = 28,
   blur = 18,
-  onMapClick
+  onMapClick,
+  isDark = true
 }: MapHeatmapProps) {
   return (
     <div className={`overflow-hidden rounded-xl [&_.leaflet-container]:rounded-xl ${className}`}>
@@ -124,11 +127,14 @@ export function MapHeatmap({
         zoom={zoom}
         scrollWheelZoom
         className="h-full w-full min-h-[280px]"
-        style={{ background: '#1a1a1a' }}
+        style={{ background: isDark ? '#1a1a1a' : '#f3f4f6' }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          url={isDark
+            ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+            : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+          }
         />
         <HeatmapLayer points={points} radius={radius} blur={blur} />
         <MapClickHandler onMapClick={onMapClick} />
