@@ -54,7 +54,7 @@ function pointsWithin200m(
   const out: Array<{ lat: number; lng: number }> = [];
   for (let i = 0; i < count; i++) {
     const angle = (i / count) * 2 * Math.PI;
-    const r = 50 + (i * 37) % 151;
+    const r = 50 + ((i * 37) % 151);
     const mN = r * Math.cos(angle);
     const mE = r * Math.sin(angle);
     out.push(offsetByMetersForLat(venue.lat, venue.lng, mN, mE));
@@ -65,7 +65,9 @@ function pointsWithin200m(
 function buildInitialFanPosts(): FanPost[] {
   const posts: FanPost[] = [];
   let id = 0;
-  const emiratesUrls = Object.values(emiratesGlob).map((m) => (typeof m === 'string' ? m : (m as { default: string }).default));
+  const emiratesUrls = Object.values(emiratesGlob).map((m) =>
+    typeof m === 'string' ? m : (m as { default: string }).default
+  );
   const emiratesPoints = pointsWithin200m(VENUES.EmiratesStadium, emiratesUrls.length);
   emiratesUrls.forEach((url, i) => {
     posts.push({
@@ -74,7 +76,9 @@ function buildInitialFanPosts(): FanPost[] {
       imageUrl: url
     });
   });
-  const soldierUrls = Object.values(soldierFieldGlob).map((m) => (typeof m === 'string' ? m : (m as { default: string }).default));
+  const soldierUrls = Object.values(soldierFieldGlob).map((m) =>
+    typeof m === 'string' ? m : (m as { default: string }).default
+  );
   const soldierPoints = pointsWithin200m(VENUES.SoldierField, soldierUrls.length);
   soldierUrls.forEach((url, i) => {
     posts.push({
@@ -149,7 +153,10 @@ const TRIP_OPTIONS = [
 ];
 
 /** Default map center (Emirates). Map shows all demo points; user can pan to Soldier Field. */
-const DEFAULT_MAP_CENTER: [number, number] = [VENUES.EmiratesStadium.lat, VENUES.EmiratesStadium.lng];
+const DEFAULT_MAP_CENTER: [number, number] = [
+  VENUES.EmiratesStadium.lat,
+  VENUES.EmiratesStadium.lng
+];
 
 const INITIAL_FAN_POSTS: FanPost[] = buildInitialFanPosts();
 
@@ -201,13 +208,13 @@ export function Match() {
       <div className="mx-auto max-w-2xl px-4 pb-24">
         {/* Top nav */}
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[#2d2d2d] bg-[#1a1a1a] py-4">
-          <Link to="/" className="flex items-center gap-2 text-white">
+          <Link to="/home" className="flex items-center gap-2 text-white">
             <ArrowLeft className="h-5 w-5" />
             <span className="font-semibold">World Cup</span>
           </Link>
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
-            <span className="text-xs font-bold uppercase tracking-wide text-white">LIVE</span>
+            <span className="text-xs font-bold tracking-wide text-white uppercase">LIVE</span>
           </div>
         </header>
 
@@ -254,7 +261,7 @@ export function Match() {
         </section>
 
         {/* Plan your trip */}
-        <h2 className="mt-10 text-lg font-bold uppercase tracking-wide text-white">
+        <h2 className="mt-10 text-lg font-bold tracking-wide text-white uppercase">
           Plan your trip
         </h2>
         <div className="mt-4 grid grid-cols-2 gap-3">
@@ -298,7 +305,7 @@ export function Match() {
           <FileText className="h-5 w-5 text-[#8bc34a]" />
           <h2 className="text-lg font-semibold text-[#e0e0e0]">City Guides & Tips</h2>
         </div>
-        <div className="mt-3 flex flex-col items-center justify-center rounded-2xl bg-[#2d2d2d] py-12 px-4">
+        <div className="mt-3 flex flex-col items-center justify-center rounded-2xl bg-[#2d2d2d] px-4 py-12">
           <FileText className="mb-3 h-14 w-14 text-[#606060] opacity-40" />
           <p className="text-[#a0a0a0]">No guides yet for this game.</p>
           <p className="mt-1 text-sm text-[#808080]">Check back closer to matchday!</p>
@@ -309,7 +316,7 @@ export function Match() {
           <Quote className="h-5 w-5 text-[#8bc34a]" />
           <h2 className="text-lg font-semibold text-[#e0e0e0]">Fan Reviews</h2>
         </div>
-        <div className="mt-3 flex flex-col items-center justify-center rounded-2xl bg-[#2d2d2d] py-12 px-4">
+        <div className="mt-3 flex flex-col items-center justify-center rounded-2xl bg-[#2d2d2d] px-4 py-12">
           <Quote className="mb-3 h-14 w-14 text-[#606060] opacity-40" />
           <p className="text-[#a0a0a0]">No reviews yet for this game.</p>
         </div>
@@ -319,7 +326,7 @@ export function Match() {
           <MapPin className="h-5 w-5 text-[#8bc34a]" />
           <h2 className="text-lg font-semibold text-[#e0e0e0]">Where fans are posting</h2>
         </div>
-        <div className="mt-3 flex flex-col rounded-2xl overflow-hidden bg-[#2d2d2d]">
+        <div className="mt-3 flex flex-col overflow-hidden rounded-2xl bg-[#2d2d2d]">
           {!showSpotPhotosModal ? (
             <MapHeatmap
               center={DEFAULT_MAP_CENTER}
@@ -335,10 +342,10 @@ export function Match() {
           ) : (
             <div className="h-[320px] w-full bg-[#252525]" aria-hidden />
           )}
-          <p className="py-3 px-4 text-center text-sm text-[#a0a0a0]">
+          <p className="px-4 py-3 text-center text-sm text-[#a0a0a0]">
             Warmer areas = more photos & videos from fans. Tap a spot to see photos from that area.
           </p>
-          <div className="border-t border-[#3a3a3a] px-4 pb-4 pt-3">
+          <div className="border-t border-[#3a3a3a] px-4 pt-3 pb-4">
             <input
               ref={fileInputRef}
               type="file"
@@ -437,17 +444,13 @@ export function Match() {
                 setPreviewPosition(null);
                 setShowPreviewModal(false);
               }}
-              className="text-[#60f031] font-semibold"
+              className="font-semibold text-[#60f031]"
             >
               Post
             </button>
           </header>
           <div className="flex flex-1 items-center justify-center overflow-hidden p-4">
-            <img
-              src={previewPhotoUrl}
-              alt="Preview"
-              className="max-h-full w-full object-contain"
-            />
+            <img src={previewPhotoUrl} alt="Preview" className="max-h-full w-full object-contain" />
           </div>
         </div>
       )}
@@ -486,15 +489,19 @@ export function Match() {
                 <Circle
                   center={[spotCenter.lat, spotCenter.lng]}
                   radius={spotRadiusDeg * METERS_PER_DEG}
-                  pathOptions={{ color: '#8bc34a', fillColor: '#8bc34a', fillOpacity: 0.25, weight: 2 }}
+                  pathOptions={{
+                    color: '#8bc34a',
+                    fillColor: '#8bc34a',
+                    fillOpacity: 0.25,
+                    weight: 2
+                  }}
                 />
               </MapContainer>
             </div>
             <div className="p-4">
               {(() => {
                 const inArea = fanPosts.filter(
-                  (p) =>
-                    distanceDeg(p.lat, p.lng, spotCenter.lat, spotCenter.lng) <= spotRadiusDeg
+                  (p) => distanceDeg(p.lat, p.lng, spotCenter.lat, spotCenter.lng) <= spotRadiusDeg
                 );
                 if (inArea.length === 0) {
                   return (
@@ -507,7 +514,10 @@ export function Match() {
                 return (
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {inArea.map((post) => (
-                      <div key={post.id} className="aspect-square overflow-hidden rounded-lg bg-[#2d2d2d]">
+                      <div
+                        key={post.id}
+                        className="aspect-square overflow-hidden rounded-lg bg-[#2d2d2d]"
+                      >
                         <img
                           src={post.imageUrl}
                           alt="Fan post"

@@ -1,14 +1,11 @@
-import { useParams } from 'react-router';
+import { useParams, Link, useOutletContext } from 'react-router';
 import { useState } from 'react';
 import type { Match } from '@/types/match.type';
 import type { ForumPost } from '@/types/match.type';
 import { Calendar, MapPin, Users, MessageSquare, TrendingUp, Filter } from 'lucide-react';
 import { format } from 'date-fns';
-import { Sun, Moon } from 'lucide-react';
-
-interface CompetitionPageProps {
-  isDark?: boolean;
-}
+import { useGetMatchesQuery } from '@/store/apis/matches.api';
+import type { RootContext } from '@/ui/Root';
 
 // Competition mapping - maps URL slugs to display names
 const COMPETITION_MAP: Record<string, { name: string; emoji: string; description: string }> = {
@@ -44,15 +41,16 @@ const COMPETITION_MAP: Record<string, { name: string; emoji: string; description
   }
 };
 
-// Mock data for demonstration
-const MOCK_COMPETITION_MATCHES: Record<string, Match[]> = {
-  'fifa-world-cup-2026': [
-    { _id: '1', homeTeam: 'Mexico', awayTeam: 'Germany', date: '2026-06-11T18:00:00Z', stage: 'Group A', venue: 'AT&T Stadium', city: 'Dallas', createdAt: '', updatedAt: '' },
-    { _id: '2', homeTeam: 'USA', awayTeam: 'Brazil', date: '2026-06-12T20:00:00Z', stage: 'Group B', venue: 'MetLife Stadium', city: 'New York', createdAt: '', updatedAt: '' },
-    { _id: '3', homeTeam: 'England', awayTeam: 'Japan', date: '2026-06-13T16:00:00Z', stage: 'Group C', venue: 'SoFi Stadium', city: 'Los Angeles', createdAt: '', updatedAt: '' },
-    { _id: '4', homeTeam: 'France', awayTeam: 'Argentina', date: '2026-06-14T20:00:00Z', stage: 'Group D', venue: 'Hard Rock Stadium', city: 'Miami', createdAt: '', updatedAt: '' }
-  ]
-};
+const PLACEHOLDER_MATCHES: Match[] = [
+  { _id: '1', homeTeam: 'Mexico', awayTeam: 'Germany', date: '2026-06-11T18:00:00Z', stage: 'Group A', venue: 'AT&T Stadium', city: 'Dallas', createdAt: '', updatedAt: '' },
+  { _id: '2', homeTeam: 'USA', awayTeam: 'Brazil', date: '2026-06-12T20:00:00Z', stage: 'Group B', venue: 'MetLife Stadium', city: 'New York', createdAt: '', updatedAt: '' },
+  { _id: '3', homeTeam: 'England', awayTeam: 'Japan', date: '2026-06-13T16:00:00Z', stage: 'Group C', venue: 'SoFi Stadium', city: 'Los Angeles', createdAt: '', updatedAt: '' },
+  { _id: '4', homeTeam: 'France', awayTeam: 'Argentina', date: '2026-06-14T20:00:00Z', stage: 'Group D', venue: 'Hard Rock Stadium', city: 'Miami', createdAt: '', updatedAt: '' },
+  { _id: '5', homeTeam: 'Spain', awayTeam: 'Netherlands', date: '2026-06-15T18:00:00Z', stage: 'Group E', venue: 'Lincoln Financial Field', city: 'Philadelphia', createdAt: '', updatedAt: '' },
+  { _id: '6', homeTeam: 'Canada', awayTeam: 'Morocco', date: '2026-06-16T16:00:00Z', stage: 'Group F', venue: 'BMO Field', city: 'Toronto', createdAt: '', updatedAt: '' },
+  { _id: '7', homeTeam: 'Portugal', awayTeam: 'South Korea', date: '2026-06-17T18:00:00Z', stage: 'Group G', venue: 'Estadio Azteca', city: 'Mexico City', createdAt: '', updatedAt: '' },
+  { _id: '8', homeTeam: 'Belgium', awayTeam: 'Nigeria', date: '2026-06-18T20:00:00Z', stage: 'Group H', venue: 'Lumen Field', city: 'Seattle', createdAt: '', updatedAt: '' },
+];
 
 const MOCK_COMPETITION_POSTS: Record<string, ForumPost[]> = {
   'fifa-world-cup-2026': [
@@ -79,14 +77,21 @@ const MOCK_COMPETITION_POSTS: Record<string, ForumPost[]> = {
   ]
 };
 
-export function Competition({ isDark = true }: CompetitionPageProps) {
+export function Competition() {
   const { competitionSlug } = useParams<{ competitionSlug: string }>();
+  const { isDark: isDarkMode } = useOutletContext<RootContext>();
   const [activeTab, setActiveTab] = useState<'matches' | 'posts' | 'stats'>('matches');
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'completed'>('all');
-  const [isDarkMode, setIsDarkMode] = useState(isDark);
+  const { data: apiMatches } = useGetMatchesQuery();
 
   const competition = competitionSlug ? COMPETITION_MAP[competitionSlug] : null;
-  const matches = competitionSlug ? MOCK_COMPETITION_MATCHES[competitionSlug] || [] : [];
+  const allMatches = apiMatches && apiMatches.length > 0 ? apiMatches : PLACEHOLDER_MATCHES;
+  const now = new Date();
+  const matches = filter === 'all'
+    ? allMatches
+    : filter === 'upcoming'
+    ? allMatches.filter((m) => new Date(m.date) >= now)
+    : allMatches.filter((m) => new Date(m.date) < now);
   const posts = competitionSlug ? MOCK_COMPETITION_POSTS[competitionSlug] || [] : [];
 
   if (!competition) {
@@ -128,18 +133,7 @@ export function Competition({ isDark = true }: CompetitionPageProps) {
               </div>
             </div>
 
-            {/* Theme toggle */}
-            <button
-              onClick={() => setIsDarkMode(prev => !prev)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-all ${
-                isDarkMode
-                  ? 'bg-white/10 text-gray-300 hover:bg-white/15 hover:text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-200 hover:text-gray-900 shadow-sm border border-gray-200'
-              }`}
-            >
-              {isDarkMode ? <Sun className="size-4" /> : <Moon className="size-4" />}
-              {isDarkMode ? 'Light' : 'Dark'}
-            </button>
+            
           </div>
 
           {/* Tabs */}
@@ -203,9 +197,10 @@ export function Competition({ isDark = true }: CompetitionPageProps) {
         {activeTab === 'matches' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {matches.map((match) => (
-              <div
+              <Link
                 key={match._id}
-                className={`p-6 rounded-xl border transition-all hover:scale-[1.02] cursor-pointer ${
+                to={`/matches/${match._id}`}
+                className={`block p-6 rounded-xl border transition-all hover:scale-[1.02] cursor-pointer ${
                   isDarkMode 
                     ? 'bg-[#1a1a1a] border-white/10 hover:border-white/20' 
                     : 'bg-white border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md'
@@ -241,7 +236,7 @@ export function Competition({ isDark = true }: CompetitionPageProps) {
                   <MapPin className="size-3" />
                   <span>{match.venue}, {match.city}</span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

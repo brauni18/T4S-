@@ -36,7 +36,7 @@ export function Signup() {
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white flex flex-col">
       <header className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-        <Link to="/" className="text-xl font-bold text-[#22c55e] tracking-tight">
+        <Link to="/home" className="text-xl font-bold text-[#22c55e] tracking-tight">
           Traveling for Sports
         </Link>
         <span className="p-2 rounded-full bg-white/5">
@@ -93,7 +93,7 @@ export function Signup() {
 
           <p className="text-center text-gray-500 text-sm mt-6">
             Already have an account?{' '}
-            <Link to="/" className="text-[#22c55e] hover:underline">
+            <Link to="/home" className="text-[#22c55e] hover:underline">
               Sign in
             </Link>
           </p>

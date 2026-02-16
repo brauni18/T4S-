@@ -1,34 +1,17 @@
 import { UpcomingMatchesCarousel } from '@/ui/components/ImageCarousel';
 import { PostFeed } from '@/ui/components/PostFeed';
-// import { TrendingMatches } from '@/ui/components/TrendingMatches';
 import { TrendingTopics } from '@/ui/components/TrendingTopics';
 import { SportsSidebar } from '@/ui/components/SportsSidebar';
-import { useState } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { useOutletContext } from 'react-router';
+import type { RootContext } from '@/ui/Root';
 
 export function Home() {
-  const [isDark, setIsDark] = useState(true);
+  const { isDark } = useOutletContext<RootContext>();
 
   return (
     <div className={`min-h-screen transition-colors ${isDark ? 'bg-[#0f0f0f] text-white' : 'bg-gray-100 text-gray-900'}`}>
-      {/* Theme toggle - top right */}
-      <div className="flex justify-end px-6 pt-4">
-        <button
-          onClick={() => setIsDark((prev) => !prev)}
-          className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-all ${
-            isDark
-              ? 'bg-white/10 text-gray-300 hover:bg-white/15 hover:text-white'
-              : 'bg-white text-gray-600 hover:bg-gray-200 hover:text-gray-900 shadow-sm'
-          }`}
-          aria-label="Toggle theme"
-        >
-          {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-          {isDark ? 'Light' : 'Dark'}
-        </button>
-      </div>
-
       {/* Upcoming matches carousel banner */}
-      <section className="w-full pt-2 pb-2 px-6">
+      <section className="w-full pt-4 pb-2 px-6">
         <UpcomingMatchesCarousel isDark={isDark} />
       </section>
 
@@ -50,7 +33,6 @@ export function Home() {
           {/* Right sidebar - Trending matches + Topics */}
           <aside className="hidden lg:block">
             <div className="sticky top-6 space-y-6">
-              {/* <TrendingMatches isDark={isDark} /> */}
               <TrendingTopics isDark={isDark} />
             </div>
           </aside>

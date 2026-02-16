@@ -2,6 +2,7 @@ import type { Match } from '@/types/match.type';
 import { useGetMatchesQuery } from '@/store/apis/matches.api';
 import { useAppSelector } from '@/store/hooks';
 import { Calendar, MapPin, Trophy } from 'lucide-react';
+import { Link } from 'react-router';
 import { format } from 'date-fns';
 
 interface MatchItemProps {
@@ -20,8 +21,9 @@ function MatchItem({ match, highlighted, isDark }: MatchItemProps) {
   })();
 
   return (
-    <div
-      className={`p-3 rounded-lg border transition-colors cursor-pointer ${
+    <Link
+      to={`/matches/${match._id}`}
+      className={`block p-3 rounded-lg border transition-colors cursor-pointer ${
         highlighted
           ? isDark
             ? 'border-[#22c55e]/30 bg-[#22c55e]/5 hover:border-[#22c55e]/50'
@@ -55,7 +57,7 @@ function MatchItem({ match, highlighted, isDark }: MatchItemProps) {
           {match.stage}
         </span>
       )}
-    </div>
+    </Link>
   );
 }
 

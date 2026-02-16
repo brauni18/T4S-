@@ -1,9 +1,9 @@
 import { Button } from '@/shadcn/components/ui/button';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setLocation, setFavoriteTeams, setIsAdult18Plus } from '@/store/slices/user.slice';
 import { Globe, User } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, Navigate, useNavigate } from 'react-router';
 
 const COUNTRY_FLAGS: Record<string, string> = {
   Israel: '🇮🇱',
@@ -67,9 +67,14 @@ const WORLD_CUP_TEAMS = [
 export function Welcome() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const savedTeams = useAppSelector((s) => s.user.favoriteTeams);
   const [country, setCountry] = useState('');
   const [favoriteTeams, setFavoriteTeamsState] = useState<string[]>([]);
-  const [isAdult18Plus, setIsAdult18Plus] = useState<boolean | null>(null);
+  const [isAdult18Plus, setIsAdult18PlusLocal] = useState<boolean | null>(null);
+
+  if (savedTeams.length > 0) {
+    return <Navigate to="/home" replace />;
+  }
 
   const handleTeamToggle = (team: string) => {
     setFavoriteTeamsState((prev) =>
@@ -218,7 +223,7 @@ export function Welcome() {
               <div className="flex gap-4">
                 <button
                   type="button"
-                  onClick={() => setIsAdult18Plus(false)}
+                  onClick={() => setIsAdult18PlusLocal(false)}
                   className={`
                     flex-1 py-3.5 px-4 rounded-xl font-medium transition-all
                     ${isAdult18Plus === false ? 'bg-[#22c55e] text-black' : 'bg-[#1a1a1a] text-gray-400 border border-white/15 hover:border-[#22c55e]/50'}
@@ -228,7 +233,7 @@ export function Welcome() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setIsAdult18Plus(true)}
+                  onClick={() => setIsAdult18PlusLocal(true)}
                   className={`
                     flex-1 py-3.5 px-4 rounded-xl font-medium transition-all
                     ${isAdult18Plus === true ? 'bg-[#22c55e] text-black' : 'bg-[#1a1a1a] text-gray-400 border border-white/15 hover:border-[#22c55e]/50'}

@@ -1,64 +1,66 @@
 import { SocketProvider } from '@/sockets/SocketProvider';
-import { useMemo } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router';
-import { MapPin, Home, Map, User } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { Link, Outlet, useLocation } from 'react-router';
+import { Sun, Moon } from 'lucide-react';
+
+export interface RootContext {
+  isDark: boolean;
+}
 
 export function Root() {
   const socketUrls = useMemo(() => [], []);
   const location = useLocation();
+  const [isDark, setIsDark] = useState(() => {
+    const stored = localStorage.getItem('theme');
+    return stored ? stored === 'dark' : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }, [isDark]);
 
   const isWelcomePage = location.pathname === '/';
   const isSignupPage = location.pathname === '/signup';
   const isMatchPage = location.pathname.startsWith('/matches/');
   const hideNav = isWelcomePage || isSignupPage || isMatchPage;
 
-  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex flex-col items-center justify-center gap-1 py-2 min-h-[44px] min-w-[44px] px-3 text-xs transition-colors ${
-      isActive ? 'text-[#22c55e]' : 'text-gray-500'
-    }`;
-
   return (
     <SocketProvider urls={socketUrls}>
-      <div className="min-h-screen bg-[#0f0f0f] app-shell">
+      <div className={`min-h-screen ${isDark ? 'bg-[#0f0f0f]' : 'bg-gray-100'} app-shell`}>
         {!hideNav && (
           <header
-            className="sticky top-0 z-20 bg-[#0f0f0f] border-b border-white/10 px-4 py-3 safe-top"
+            className={`sticky top-0 z-20 border-b px-4 py-3 safe-top ${
+              isDark ? 'bg-[#0f0f0f] border-white/10' : 'bg-white border-gray-200'
+            }`}
             style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
           >
             <div className="flex items-center justify-between">
-              <Link to="/map" className="flex items-center gap-2 min-h-[44px] min-w-[44px]">
+              <Link to="/home" className="flex items-center gap-2 min-h-[44px] min-w-[44px]">
                 <span className="text-xl">⚽</span>
-                <span className="text-lg font-bold text-[#22c55e] truncate max-w-[180px]">
+                <span className="text-lg font-bold text-[#22c55e]">
                   Traveling for Sports
                 </span>
               </Link>
+
+              <button
+                onClick={() => setIsDark((prev) => !prev)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-all ${
+                  isDark
+                    ? 'bg-white/10 text-gray-300 hover:bg-white/15 hover:text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-200 hover:text-gray-900 shadow-sm border border-gray-200'
+                }`}
+                aria-label="Toggle theme"
+              >
+                {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+                {isDark ? 'Light' : 'Dark'}
+              </button>
             </div>
           </header>
         )}
 
-        <main className="bottom-nav-spacer">
-          <Outlet />
+        <main>
+          <Outlet context={{ isDark } satisfies RootContext} />
         </main>
-
-        {!hideNav && (
-          <nav
-            className="fixed bottom-0 left-0 right-0 z-30 bg-[#0f0f0f] border-t border-white/10 flex items-center justify-around safe-bottom max-w-[430px] mx-auto"
-            style={{
-              paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
-              paddingLeft: 'max(0.5rem, env(safe-area-inset-left))',
-              paddingRight: 'max(0.5rem, env(safe-area-inset-right))',
-            }}
-          >
-            <NavLink to="/map" className={navLinkClass}>
-              <MapPin className="size-5" />
-              <span>Map</span>
-            </NavLink>
-            <NavLink to="/signup" className={navLinkClass}>
-              <User className="size-5" />
-              <span>Profile</span>
-            </NavLink>
-          </nav>
-        )}
       </div>
     </SocketProvider>
   );

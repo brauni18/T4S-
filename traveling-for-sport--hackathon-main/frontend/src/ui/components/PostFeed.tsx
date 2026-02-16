@@ -1,6 +1,7 @@
 import type { ForumPost } from '@/types/match.type';
 import { MessageSquare, MapPin, Tv, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useState } from 'react';
 
 interface PostCardProps {
   post: ForumPost;
@@ -173,19 +174,34 @@ interface PostFeedProps {
   isDark?: boolean;
 }
 
+type FilterOption = 'All' | 'Discussion' | 'Meetup' | 'Watch Party';
+
+const FILTER_TO_POST_TYPE: Record<FilterOption, ForumPost['postType'] | null> = {
+  'All': null,
+  'Discussion': 'discussion',
+  'Meetup': 'meetup',
+  'Watch Party': 'watch-party',
+};
+
 export function PostFeed({ posts, isDark = true }: PostFeedProps) {
-  const displayPosts = posts && posts.length > 0 ? posts : PLACEHOLDER_POSTS;
+  const [activeFilter, setActiveFilter] = useState<FilterOption>('All');
+  const allPosts = posts && posts.length > 0 ? posts : PLACEHOLDER_POSTS;
+
+  const displayPosts = activeFilter === 'All'
+    ? allPosts
+    : allPosts.filter((p) => p.postType === FILTER_TO_POST_TYPE[activeFilter]);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
         <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Feed</h2>
         <div className="flex gap-2">
-          {(['All', 'Discussion', 'Meetup', 'Watch Party'] as const).map((filter, i) => (
+          {(['All', 'Discussion', 'Meetup', 'Watch Party'] as const).map((filter) => (
             <button
               key={filter}
+              onClick={() => setActiveFilter(filter)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                i === 0
+                activeFilter === filter
                   ? isDark
                     ? 'bg-[#22c55e]/15 text-[#22c55e]'
                     : 'bg-green-100 text-green-700'
@@ -200,9 +216,17 @@ export function PostFeed({ posts, isDark = true }: PostFeedProps) {
         </div>
       </div>
 
-      {displayPosts.map((post) => (
-        <PostCard key={post._id} post={post} isDark={isDark} />
-      ))}
+      {displayPosts.length > 0 ? (
+        displayPosts.map((post) => (
+          <PostCard key={post._id} post={post} isDark={isDark} />
+        ))
+      ) : (
+        <div className={`text-center py-12 rounded-xl border ${
+          isDark ? 'border-white/10 text-gray-500' : 'border-gray-200 text-gray-400'
+        }`}>
+          <p>No {activeFilter.toLowerCase()} posts yet.</p>
+        </div>
+      )}
     </div>
   );
 }

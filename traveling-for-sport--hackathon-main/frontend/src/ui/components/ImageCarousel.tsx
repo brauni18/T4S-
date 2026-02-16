@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Calendar, MapPin } from 'lucide-react';
+import { Link } from 'react-router';
 import { useGetMatchesQuery } from '@/store/apis/matches.api';
 import { format } from 'date-fns';
 import type { Match } from '@/types/match.type';
@@ -133,9 +134,10 @@ export function UpcomingMatchesCarousel({ isDark = true }: UpcomingMatchesCarous
         className="flex gap-4 overflow-x-hidden py-2 px-4 scroll-smooth"
       >
         {extendedMatches.map((match, index) => (
-          <div
+          <Link
             key={`${match._id}-${index}`}
-            className={`h-44 w-72 rounded-xl flex-shrink-0 p-5 border cursor-pointer hover:scale-[1.02] transition-all duration-200 ${
+            to={`/matches/${match._id}`}
+            className={`block h-44 w-72 rounded-xl flex-shrink-0 p-5 border cursor-pointer hover:scale-[1.02] transition-all duration-200 ${
               isDark 
                 ? 'bg-[#1a1a1a] border-white/10 hover:border-white/20' 
                 : 'bg-white border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md'
@@ -172,7 +174,7 @@ export function UpcomingMatchesCarousel({ isDark = true }: UpcomingMatchesCarous
               <MapPin className="size-3" />
               <span>{match.city}</span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
