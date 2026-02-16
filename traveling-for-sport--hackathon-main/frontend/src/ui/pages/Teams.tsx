@@ -173,8 +173,13 @@ export const SPORT_SLUGS = SPORT_TEAMS.map((s) => ({ label: s.label, icon: s.ico
 
 // ── Reusable card component ─────────────────────────────────
 
-function TeamCardItem({ team, isDark }: { team: TeamCard; isDark: boolean }) {
+function teamToSlug(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+function TeamCardItem({ team, isDark, sportSlug }: { team: TeamCard; isDark: boolean; sportSlug: string }) {
   return (
+    <Link to={`/teams/${sportSlug}/${teamToSlug(team.name)}`} className="block">
     <div
       className={`group relative rounded-xl border p-5 transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer ${
         isDark
@@ -227,6 +232,7 @@ function TeamCardItem({ team, isDark }: { team: TeamCard; isDark: boolean }) {
 
       <div className="absolute inset-x-0 bottom-0 h-0.5 rounded-b-xl bg-[#22c55e] scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
     </div>
+    </Link>
   );
 }
 
@@ -466,7 +472,7 @@ export function Teams() {
                         );
                       })
                       .map((team) => (
-                        <TeamCardItem key={team.name} team={team} isDark={isDark} />
+                        <TeamCardItem key={team.name} team={team} isDark={isDark} sportSlug={sport.slug} />
                       ))}
                   </div>
                 </section>
@@ -477,7 +483,7 @@ export function Teams() {
           /* ── All Teams flat grid ── */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredTeams.map((team) => (
-              <TeamCardItem key={team.name} team={team} isDark={isDark} />
+              <TeamCardItem key={team.name} team={team} isDark={isDark} sportSlug={sport.slug} />
             ))}
           </div>
         )}

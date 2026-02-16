@@ -16,11 +16,14 @@ import {
   Star,
   Thermometer,
   Train,
-  Shield
+  Shield,
+  Search,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { MapHeatmap } from '@/ui/components/MapHeatmap';
 import { SportsSidebar } from '@/ui/components/SportsSidebar';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useParams, Link, useOutletContext } from 'react-router';
 import { Circle, MapContainer, TileLayer } from 'react-leaflet';
 import type { RootContext } from '@/ui/Root';
@@ -135,6 +138,68 @@ function getTeamAbbr(teamName: string): string {
   if (words.length >= 2 && words[0].length <= 2) return words[0].toUpperCase();
   const first = words[0] ?? teamName;
   return first.slice(0, 3).toUpperCase();
+}
+
+const TEAM_FLAGS: Record<string, string> = {
+  'Mexico': '🇲🇽',
+  'Germany': '🇩🇪',
+  'USA': '🇺🇸',
+  'United States': '🇺🇸',
+  'Brazil': '🇧🇷',
+  'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Japan': '🇯🇵',
+  'France': '🇫🇷',
+  'Argentina': '🇦🇷',
+  'Spain': '🇪🇸',
+  'Netherlands': '🇳🇱',
+  'Canada': '🇨🇦',
+  'Morocco': '🇲🇦',
+  'Portugal': '🇵🇹',
+  'South Korea': '🇰🇷',
+  'Belgium': '🇧🇪',
+  'Nigeria': '🇳🇬',
+  'Italy': '🇮🇹',
+  'Croatia': '🇭🇷',
+  'Uruguay': '🇺🇾',
+  'Colombia': '🇨🇴',
+  'Senegal': '🇸🇳',
+  'Australia': '🇦🇺',
+  'Switzerland': '🇨🇭',
+  'Denmark': '🇩🇰',
+  'Poland': '🇵🇱',
+  'Wales': '🏴󠁧󠁢󠁷󠁬󠁳󠁿',
+  'Scotland': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'Serbia': '🇷🇸',
+  'Ghana': '🇬🇭',
+  'Cameroon': '🇨🇲',
+  'Ecuador': '🇪🇨',
+  'Saudi Arabia': '🇸🇦',
+  'Iran': '🇮🇷',
+  'Tunisia': '🇹🇳',
+  'Costa Rica': '🇨🇷',
+  'Qatar': '🇶🇦',
+  'Chile': '🇨🇱',
+  'Paraguay': '🇵🇾',
+  'Peru': '🇵🇪',
+  'Sweden': '🇸🇪',
+  'Austria': '🇦🇹',
+  'Czech Republic': '🇨🇿',
+  'Turkey': '🇹🇷',
+  'Norway': '🇳🇴',
+  'Ireland': '🇮🇪',
+  'Egypt': '🇪🇬',
+  'Algeria': '🇩🇿',
+  'China': '🇨🇳',
+  'India': '🇮🇳',
+  'Honduras': '🇭🇳',
+  'Jamaica': '🇯🇲',
+  'Panama': '🇵🇦',
+  'El Salvador': '🇸🇻',
+  'New Zealand': '🇳🇿',
+};
+
+function getTeamFlag(teamName: string): string | null {
+  return TEAM_FLAGS[teamName] ?? null;
 }
 
 const TRIP_OPTIONS = [
@@ -335,6 +400,7 @@ export function Match() {
   const { data, isLoading, error } = useGetMatchByIdQuery(id!);
   const outletContext = useOutletContext<RootContext | null>();
   const isDark = outletContext?.isDark ?? true;
+  const setIsDark = outletContext?.setIsDark;
   const [showFanChat, setShowFanChat] = useState(false);
   const [fanChatTab, setFanChatTab] = useState<'home' | 'away'>('home');
 
@@ -348,6 +414,29 @@ export function Match() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingPositionRef = useRef<{ lat: number; lng: number } | null>(null);
+
+  // Nav bar state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      console.log('Search:', searchQuery.trim());
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const mapPoints = fanPosts.map((p) => ({ lat: p.lat, lng: p.lng, weight: 1 }));
 
@@ -367,6 +456,8 @@ export function Match() {
   const { match, forumPosts } = data;
   const homeAbbr = getTeamAbbr(match.homeTeam);
   const awayAbbr = getTeamAbbr(match.awayTeam);
+  const homeFlag = getTeamFlag(match.homeTeam);
+  const awayFlag = getTeamFlag(match.awayTeam);
   const matchDate = new Date(match.date);
   const timeStr = matchDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const dateStr = matchDate.toLocaleDateString(undefined, {
@@ -382,15 +473,94 @@ export function Match() {
   return (
     <div className={`min-h-screen transition-colors ${isDark ? 'bg-[#1a1a1a] text-[#e0e0e0]' : 'bg-gray-50 text-gray-800'}`}>
       <div className="max-w-[1400px] mx-auto px-6 pb-16">
-        {/* Top nav — full width */}
-        <header className={`sticky top-0 z-10 flex items-center justify-between border-b py-3 -mx-6 px-6 ${isDark ? 'border-[#2d2d2d] bg-[#1a1a1a]' : 'border-gray-200 bg-gray-50'}`}>
-          <Link to="/home" className={`flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            <ArrowLeft className="h-5 w-5" />
-            <span className="font-semibold text-sm">World Cup</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
-            <span className={`text-xs font-bold tracking-wide uppercase ${isDark ? 'text-white' : 'text-gray-900'}`}>LIVE</span>
+        {/* Top nav — matches the global header from Root */}
+        <header
+          className={`sticky top-0 z-10 border-b -mx-6 px-6 py-3 ${
+            isDark ? 'bg-[#1a1a1a] border-[#2d2d2d]' : 'bg-gray-50 border-gray-200'
+          }`}
+          style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
+        >
+          <div className="flex items-center justify-between gap-4">
+            {/* Logo */}
+            <Link to="/home" className="flex items-center gap-2 min-h-[44px] min-w-[44px] shrink-0">
+              <span className="text-xl">⚽</span>
+              <span className="text-lg font-bold text-[#22c55e] hidden sm:inline">
+                Traveling for Sports
+              </span>
+            </Link>
+
+            {/* Search Bar */}
+            <form
+              onSubmit={handleSearch}
+              className={`flex items-center flex-1 max-w-md mx-auto rounded-full border transition-all ${
+                searchFocused
+                  ? isDark
+                    ? 'border-[#22c55e]/60 bg-white/10 ring-1 ring-[#22c55e]/30'
+                    : 'border-[#22c55e]/60 bg-white ring-1 ring-[#22c55e]/30'
+                  : isDark
+                    ? 'border-white/10 bg-white/5 hover:bg-white/10'
+                    : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
+              }`}
+            >
+              <Search
+                className={`size-4 ml-3 shrink-0 transition-colors ${
+                  searchFocused
+                    ? 'text-[#22c55e]'
+                    : isDark
+                      ? 'text-gray-500'
+                      : 'text-gray-400'
+                }`}
+              />
+              <input
+                ref={searchRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                placeholder="Search matches, teams, cities..."
+                className={`w-full bg-transparent border-none outline-none px-3 py-2 text-sm placeholder:text-gray-500 ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    searchRef.current?.focus();
+                  }}
+                  className={`mr-1 p-1 rounded-full transition-colors ${
+                    isDark ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-200 text-gray-500'
+                  }`}
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
+              <kbd
+                className={`hidden sm:flex items-center mr-3 px-1.5 py-0.5 text-[10px] font-medium rounded border shrink-0 ${
+                  isDark
+                    ? 'border-white/10 text-gray-500 bg-white/5'
+                    : 'border-gray-200 text-gray-400 bg-gray-100'
+                }`}
+              >
+                Ctrl K
+              </kbd>
+            </form>
+
+            {/* Theme toggle */}
+            <button
+              onClick={() => setIsDark?.((prev) => !prev)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-all shrink-0 ${
+                isDark
+                  ? 'bg-white/10 text-gray-300 hover:bg-white/15 hover:text-white'
+                  : 'bg-white text-gray-600 hover:bg-gray-200 hover:text-gray-900 shadow-sm border border-gray-200'
+              }`}
+              aria-label="Toggle theme"
+            >
+              {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+              <span className="hidden sm:inline">{isDark ? 'Light' : 'Dark'}</span>
+            </button>
           </div>
         </header>
 
@@ -411,7 +581,7 @@ export function Match() {
                 <div className="flex w-full items-center justify-between gap-4">
                   <div className="flex flex-col items-center gap-1.5">
                     <div className={`flex h-14 w-14 items-center justify-center rounded-full text-base font-bold ${isDark ? 'bg-[#3a3a3a] text-white' : 'bg-gray-100 text-gray-900'}`}>
-                      {homeAbbr}
+                      {homeFlag ? <span className="text-3xl leading-none">{homeFlag}</span> : homeAbbr}
                     </div>
                     <span className={`text-center text-xs font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{match.homeTeam}</span>
                   </div>
@@ -425,7 +595,7 @@ export function Match() {
 
                   <div className="flex flex-col items-center gap-1.5">
                     <div className={`flex h-14 w-14 items-center justify-center rounded-full text-base font-bold ${isDark ? 'bg-[#3a3a3a] text-white' : 'bg-gray-100 text-gray-900'}`}>
-                      {awayAbbr}
+                      {awayFlag ? <span className="text-3xl leading-none">{awayFlag}</span> : awayAbbr}
                     </div>
                     <span className={`text-center text-xs font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{match.awayTeam}</span>
                   </div>
@@ -563,7 +733,7 @@ export function Match() {
               {!showSpotPhotosModal ? (
                 <MapHeatmap
                   center={DEFAULT_MAP_CENTER}
-                  zoom={17}
+                  zoom={15}
                   points={mapPoints}
                   className="h-[260px] w-full"
                   onMapClick={(lat, lng, zoom) => {
