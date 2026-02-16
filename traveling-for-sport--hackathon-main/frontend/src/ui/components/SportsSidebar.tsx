@@ -5,6 +5,8 @@ import {
   Trophy,
   Users,
   Star,
+  Newspaper,
+  BookOpen,
   Settings,
   HelpCircle,
   LogOut,
@@ -105,6 +107,100 @@ const COMPETITIONS: SportCategory[] = [
   },
 ];
 
+// ── News items per sport ────────────────────────────────────
+
+interface NewsItem {
+  title: string;
+  emoji: string;
+  date: string;
+}
+
+const NEWS_BY_SPORT: { sport: string; icon: string; items: NewsItem[] }[] = [
+  {
+    sport: 'Football',
+    icon: '⚽',
+    items: [
+      { title: 'World Cup 2026 Draw Confirmed', emoji: '🏆', date: 'Feb 14' },
+      { title: 'Champions League QF matchups set', emoji: '🌟', date: 'Feb 13' },
+      { title: 'Premier League title race heats up', emoji: '🏴', date: 'Feb 12' },
+      { title: 'MLS 2026 season kicks off March 1', emoji: '🇺🇸', date: 'Feb 10' },
+    ],
+  },
+  {
+    sport: 'Basketball',
+    icon: '🏀',
+    items: [
+      { title: 'NBA All-Star Weekend recap', emoji: '⭐', date: 'Feb 15' },
+      { title: 'Trade deadline winners & losers', emoji: '🔄', date: 'Feb 11' },
+    ],
+  },
+  {
+    sport: 'American Football',
+    icon: '🏈',
+    items: [
+      { title: 'Super Bowl LX Preview', emoji: '🏟️', date: 'Feb 9' },
+      { title: 'NFL Combine top performers', emoji: '💪', date: 'Feb 8' },
+    ],
+  },
+  {
+    sport: 'Baseball',
+    icon: '⚾',
+    items: [
+      { title: 'MLB Spring Training underway', emoji: '☀️', date: 'Feb 14' },
+    ],
+  },
+  {
+    sport: 'Hockey',
+    icon: '🏒',
+    items: [
+      { title: 'NHL playoff race tightens', emoji: '🧊', date: 'Feb 13' },
+    ],
+  },
+];
+
+// ── Blog article links ──────────────────────────────────────
+
+interface BlogLink {
+  title: string;
+  tag: string;
+  competitionSlug: string;
+}
+
+const BLOG_CATEGORIES: { category: string; emoji: string; items: BlogLink[] }[] = [
+  {
+    category: 'City Guides',
+    emoji: '🏙️',
+    items: [
+      { title: 'Dallas Match-Day Guide', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
+      { title: 'NYC / MetLife Experience', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
+      { title: 'LA & SoFi Stadium', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
+      { title: 'Miami: Heat & Passion', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
+      { title: 'Toronto Fan Guide', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
+      { title: 'Mexico City & Azteca', tag: 'city', competitionSlug: 'fifa-world-cup-2026' },
+    ],
+  },
+  {
+    category: 'Match Previews',
+    emoji: '⚽',
+    items: [
+      { title: 'Group A: Mexico vs Germany', tag: 'preview', competitionSlug: 'fifa-world-cup-2026' },
+      { title: 'Group B: USA vs Brazil', tag: 'preview', competitionSlug: 'fifa-world-cup-2026' },
+      { title: 'PL Season Preview', tag: 'preview', competitionSlug: 'premier-league' },
+      { title: 'NBA Contenders & Pretenders', tag: 'preview', competitionSlug: 'nba' },
+    ],
+  },
+  {
+    category: 'Travel & Culture',
+    emoji: '✈️',
+    items: [
+      { title: 'Budget Flights Between Host Cities', tag: 'travel', competitionSlug: 'fifa-world-cup-2026' },
+      { title: 'World Cup Food Guide', tag: 'culture', competitionSlug: 'fifa-world-cup-2026' },
+      { title: 'Best Away-Day UCL Cities', tag: 'travel', competitionSlug: 'uefa-champions-league' },
+      { title: 'NFL Tailgating 101', tag: 'culture', competitionSlug: 'nfl' },
+    ],
+  },
+];
+
 // Country‑flag lookup for "My Teams" display
 const TEAM_FLAGS: Record<string, string> = {
   USA: '🇺🇸', Mexico: '🇲🇽', Canada: '🇨🇦', Argentina: '🇦🇷', Brazil: '🇧🇷',
@@ -123,7 +219,7 @@ interface SportsSidebarProps {
   isDark?: boolean;
 }
 
-type SectionKey = 'competitions' | 'teams' | 'myTeams';
+type SectionKey = 'competitions' | 'teams' | 'myTeams' | 'news' | 'blog';
 
 export function SportsSidebar({ isDark = true }: SportsSidebarProps) {
   const favoriteTeams = useAppSelector((s) => s.user.favoriteTeams);
@@ -302,6 +398,77 @@ export function SportsSidebar({ isDark = true }: SportsSidebarProps) {
               </div>
             ))
           )}
+        </div>
+      )}
+
+      {/* ─── News ─────────────────────────────────── */}
+      {sectionBtn(
+        'news',
+        <Newspaper className={`size-4 ${isDark ? 'text-orange-400' : 'text-orange-500'}`} />,
+        'News',
+      )}
+      {openSections.has('news') && (
+        <div className="ml-2 mt-1 mb-2 space-y-0.5">
+          {NEWS_BY_SPORT.map((sport) => (
+            <div key={sport.sport}>
+              {groupBtn(sport.icon, sport.sport)}
+              {openGroups.has(sport.sport) && (
+                <div className="ml-7 mt-0.5 mb-1 space-y-0.5">
+                  {sport.items.map((item) => (
+                    <div
+                      key={item.title}
+                      className={`flex items-start gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer transition-colors ${
+                        isDark
+                          ? 'text-gray-400 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="text-xs mt-0.5 shrink-0">{item.emoji}</span>
+                      <div className="min-w-0">
+                        <span className="line-clamp-1">{item.title}</span>
+                        <span className={`block text-xs ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
+                          {item.date}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ─── Blog ─────────────────────────────────── */}
+      {sectionBtn(
+        'blog',
+        <BookOpen className={`size-4 ${isDark ? 'text-purple-400' : 'text-purple-500'}`} />,
+        'Blog',
+      )}
+      {openSections.has('blog') && (
+        <div className="ml-2 mt-1 mb-2 space-y-0.5">
+          {BLOG_CATEGORIES.map((cat) => (
+            <div key={cat.category}>
+              {groupBtn(cat.emoji, cat.category)}
+              {openGroups.has(cat.category) && (
+                <div className="ml-7 mt-0.5 mb-1 space-y-0.5">
+                  {cat.items.map((item) => (
+                    <Link
+                      key={item.title}
+                      to={`/competition/${item.competitionSlug}?tab=blog`}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
+                        isDark
+                          ? 'text-gray-400 hover:text-white hover:bg-white/5'
+                          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="line-clamp-1">{item.title}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
