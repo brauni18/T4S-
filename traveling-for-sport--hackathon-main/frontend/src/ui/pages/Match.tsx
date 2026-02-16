@@ -19,11 +19,14 @@ import {
   Shield,
   Search,
   Sun,
-  Moon
+  Moon,
+  Send,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { MapHeatmap } from '@/ui/components/MapHeatmap';
 import { SportsSidebar } from '@/ui/components/SportsSidebar';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useOutletContext } from 'react-router';
 import { Circle, MapContainer, TileLayer } from 'react-leaflet';
 import type { RootContext } from '@/ui/Root';
@@ -41,11 +44,25 @@ const CITY_IMAGES: Record<string, string> = {
   Chicago: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=350&fit=crop&q=80',
 };
 
-/** Demo venue coordinates. Images in each folder are placed within 200m of these points. */
-const VENUES = {
-  SoldierField: { lat: 41.8624515, lng: -87.6167151 },
-  EmiratesStadium: { lat: 51.5550404, lng: -0.1083997 }
-} as const;
+/** Known venue coordinates for World Cup 2026 and demo venues */
+const VENUE_COORDS: Record<string, { lat: number; lng: number }> = {
+  'AT&T Stadium': { lat: 32.7473, lng: -97.0945 },
+  'MetLife Stadium': { lat: 40.8128, lng: -74.0742 },
+  'SoFi Stadium': { lat: 33.9535, lng: -118.3392 },
+  'Hard Rock Stadium': { lat: 25.958, lng: -80.2389 },
+  'Lincoln Financial Field': { lat: 39.9008, lng: -75.1675 },
+  'BMO Field': { lat: 43.6332, lng: -79.4186 },
+  'Estadio Azteca': { lat: 19.3029, lng: -99.1505 },
+  'Lumen Field': { lat: 47.5952, lng: -122.3316 },
+  'Soldier Field': { lat: 41.8624, lng: -87.6167 },
+  'Gillette Stadium': { lat: 42.0909, lng: -71.2643 },
+  'NRG Stadium': { lat: 29.6847, lng: -95.4107 },
+  'Mercedes-Benz Stadium': { lat: 33.7554, lng: -84.4010 },
+  'Emirates Stadium': { lat: 51.5550, lng: -0.1084 },
+};
+
+/** Fallback for unknown venues */
+const DEFAULT_VENUE = { lat: 40.8128, lng: -74.0742 }; // MetLife
 
 // Eager glob: any image in these folders becomes a demo point within 200m of the venue
 const emiratesGlob = import.meta.glob<{ default: string }>('@/assets/EmiratesStadium/*', {
@@ -67,15 +84,24 @@ function offsetByMetersForLat(lat: number, lng: number, metersNorth: number, met
   };
 }
 
-/** Place N points within 200m radius (demo). */
-function pointsWithin200m(
+/** Simple seeded pseudo-random number generator (mulberry32) */
+function seededRandom(seed: number) {
+  let t = seed + 0x6D2B79F5;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+/** Place N points scattered randomly within a radius (in meters) around a venue. */
+function pointsAroundVenue(
   venue: { lat: number; lng: number },
-  count: number
+  count: number,
+  radiusMeters = 500
 ): Array<{ lat: number; lng: number }> {
   const out: Array<{ lat: number; lng: number }> = [];
   for (let i = 0; i < count; i++) {
-    const angle = (i / count) * 2 * Math.PI;
-    const r = 50 + ((i * 37) % 151);
+    const angle = seededRandom(i * 7 + 13) * 2 * Math.PI;
+    const r = 30 + seededRandom(i * 31 + 97) * (radiusMeters - 30);
     const mN = r * Math.cos(angle);
     const mE = r * Math.sin(angle);
     out.push(offsetByMetersForLat(venue.lat, venue.lng, mN, mE));
@@ -83,32 +109,62 @@ function pointsWithin200m(
   return out;
 }
 
-function buildInitialFanPosts(): FanPost[] {
-  const posts: FanPost[] = [];
+/** Sample text posts that fans might write at a stadium */
+const FAN_TEXT_POSTS = [
+  'Amazing atmosphere here! The crowd is electric!',
+  'Just arrived at the stadium, can\'t wait for kickoff!',
+  'The food stalls near gate 3 are incredible',
+  'What a view from the upper deck! Worth the climb',
+  'Pre-game warmups happening now, both teams look sharp',
+  'Security lines moving fast, got in within 10 mins',
+  'Found the perfect spot near the away fans section',
+  'This stadium is absolutely massive in person',
+  'Half-time thoughts: what a game so far!',
+  'The singing hasn\'t stopped since the first whistle',
+  'Local tip: the street food outside gate A is way better than inside',
+  'First time at this ground - the atmosphere is unreal',
+  'Just scored!! The noise level is off the charts!',
+  'Post-match: incredible experience, already planning the next trip',
+  'The sunset over the stadium right now is stunning 🌅',
+];
+
+function buildInitialFanPosts(venue: { lat: number; lng: number }): FanPost[] {
   let id = 0;
-  const emiratesUrls = Object.values(emiratesGlob).map((m) =>
-    typeof m === 'string' ? m : (m as { default: string }).default
-  );
-  const emiratesPoints = pointsWithin200m(VENUES.EmiratesStadium, emiratesUrls.length);
-  emiratesUrls.forEach((url, i) => {
-    posts.push({
-      id: `demo-emirates-${id++}`,
-      ...emiratesPoints[i],
-      imageUrl: url
-    });
-  });
-  const soldierUrls = Object.values(soldierFieldGlob).map((m) =>
-    typeof m === 'string' ? m : (m as { default: string }).default
-  );
-  const soldierPoints = pointsWithin200m(VENUES.SoldierField, soldierUrls.length);
-  soldierUrls.forEach((url, i) => {
-    posts.push({
-      id: `demo-soldier-${id++}`,
-      ...soldierPoints[i],
-      imageUrl: url
-    });
-  });
-  return posts;
+
+  const allImageUrls = [
+    ...Object.values(emiratesGlob).map((m) =>
+      typeof m === 'string' ? m : (m as { default: string }).default
+    ),
+    ...Object.values(soldierFieldGlob).map((m) =>
+      typeof m === 'string' ? m : (m as { default: string }).default
+    ),
+  ];
+
+  const totalCount = allImageUrls.length + FAN_TEXT_POSTS.length;
+  const allPoints = pointsAroundVenue(venue, totalCount);
+
+  const imagePosts: FanPost[] = allImageUrls.map((url, i) => ({
+    id: `demo-img-${id++}`,
+    ...allPoints[i],
+    imageUrl: url
+  }));
+
+  const textPosts: FanPost[] = FAN_TEXT_POSTS.map((text, i) => ({
+    id: `demo-txt-${id++}`,
+    ...allPoints[allImageUrls.length + i],
+    text
+  }));
+
+  const merged: FanPost[] = [];
+  let imgIdx = 0;
+  let txtIdx = 0;
+  while (imgIdx < imagePosts.length || txtIdx < textPosts.length) {
+    if (imgIdx < imagePosts.length) merged.push(imagePosts[imgIdx++]);
+    if (imgIdx < imagePosts.length) merged.push(imagePosts[imgIdx++]);
+    if (txtIdx < textPosts.length) merged.push(textPosts[txtIdx++]);
+  }
+
+  return merged;
 }
 
 /** Zoom 17 = small radius (tight spot), zoom 12 = large radius (whole area). */
@@ -130,7 +186,8 @@ interface FanPost {
   id: string;
   lat: number;
   lng: number;
-  imageUrl: string;
+  imageUrl?: string;
+  text?: string;
 }
 
 function getTeamAbbr(teamName: string): string {
@@ -235,13 +292,16 @@ const TRIP_OPTIONS = [
   }
 ];
 
-/** Default map center (Emirates). Map shows all demo points; user can pan to Soldier Field. */
-const DEFAULT_MAP_CENTER: [number, number] = [
-  VENUES.EmiratesStadium.lat,
-  VENUES.EmiratesStadium.lng
-];
-
-const INITIAL_FAN_POSTS: FanPost[] = buildInitialFanPosts();
+/** Cache of fan posts keyed by venue name, so we don't regenerate on every render */
+const fanPostsCache = new Map<string, FanPost[]>();
+function getFanPostsForVenue(venueName: string): FanPost[] {
+  const cached = fanPostsCache.get(venueName);
+  if (cached) return cached;
+  const coords = VENUE_COORDS[venueName] ?? DEFAULT_VENUE;
+  const posts = buildInitialFanPosts(coords);
+  fanPostsCache.set(venueName, posts);
+  return posts;
+}
 
 /* ─── City Guides & Tips ─── */
 interface CityGuide {
@@ -404,14 +464,30 @@ export function Match() {
   const [showFanChat, setShowFanChat] = useState(false);
   const [fanChatTab, setFanChatTab] = useState<'home' | 'away'>('home');
 
-  const [fanPosts, setFanPosts] = useState<FanPost[]>(INITIAL_FAN_POSTS);
+  const venueName = data?.match?.venue ?? '';
+  const venueCoords = VENUE_COORDS[venueName] ?? DEFAULT_VENUE;
+  const mapCenter = useMemo<[number, number]>(() => [venueCoords.lat, venueCoords.lng], [venueCoords.lat, venueCoords.lng]);
+
+  const initialPosts = useMemo(() => getFanPostsForVenue(venueName), [venueName]);
+  const [fanPosts, setFanPosts] = useState<FanPost[]>([]);
+  const prevVenueRef = useRef('');
+  useEffect(() => {
+    if (venueName && venueName !== prevVenueRef.current) {
+      prevVenueRef.current = venueName;
+      setFanPosts(initialPosts);
+    }
+  }, [venueName, initialPosts]);
+
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
   const [previewPosition, setPreviewPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [showSpotPhotosModal, setShowSpotPhotosModal] = useState(false);
   const [spotCenter, setSpotCenter] = useState<{ lat: number; lng: number } | null>(null);
-  const [spotRadiusDeg, setSpotRadiusDeg] = useState<number>(0.005);
+  const [spotRadiusDeg, setSpotRadiusDeg] = useState<number>(0.003);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [textPostInput, setTextPostInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingPositionRef = useRef<{ lat: number; lng: number } | null>(null);
 
@@ -685,45 +761,6 @@ export function Match() {
               })}
             </div>
 
-            {/* Fan Reviews */}
-            <div className="mt-6 flex items-center gap-2">
-              <Quote className="h-4 w-4 text-[#22c55e]" />
-              <h2 className={`text-sm font-bold ${isDark ? 'text-[#e0e0e0]' : 'text-gray-900'}`}>Fan Reviews</h2>
-              <span className={`ml-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${isDark ? 'bg-[#22c55e]/20 text-[#22c55e]' : 'bg-green-100 text-green-700'}`}>
-                {fanReviews.length}
-              </span>
-            </div>
-            <div className="mt-2 space-y-2">
-              {fanReviews.map((review) => (
-                <div
-                  key={review.author}
-                  className={`rounded-xl p-3.5 ${isDark ? 'bg-[#2d2d2d]' : 'bg-white border border-gray-200 shadow-sm'}`}
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <div className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold ${isDark ? 'bg-[#22c55e]/20 text-[#22c55e]' : 'bg-green-100 text-green-700'}`}>
-                        {review.author.split(' ').map(w => w[0]).join('')}
-                      </div>
-                      <div>
-                        <p className={`text-xs font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{review.author}</p>
-                        <p className={`text-[10px] ${isDark ? 'text-[#808080]' : 'text-gray-400'}`}>{review.location}</p>
-                      </div>
-                    </div>
-                    <span className={`text-[10px] ${isDark ? 'text-[#808080]' : 'text-gray-400'}`}>{review.daysAgo}d ago</span>
-                  </div>
-                  <div className="flex items-center gap-0.5 mb-1.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-3 w-3 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : isDark ? 'text-[#3a3a3a]' : 'text-gray-200'}`}
-                      />
-                    ))}
-                  </div>
-                  <p className={`text-xs leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-gray-600'}`}>"{review.text}"</p>
-                </div>
-              ))}
-            </div>
-
             {/* Where fans are posting */}
             <div className="mt-6 flex items-center gap-2">
               <MapPin className="h-4 w-4 text-[#22c55e]" />
@@ -732,10 +769,11 @@ export function Match() {
             <div className={`mt-2 flex flex-col overflow-hidden rounded-xl ${isDark ? 'bg-[#2d2d2d]' : 'bg-white border border-gray-200 shadow-sm'}`}>
               {!showSpotPhotosModal ? (
                 <MapHeatmap
-                  center={DEFAULT_MAP_CENTER}
+                  center={mapCenter}
                   zoom={15}
                   points={mapPoints}
-                  className="h-[260px] w-full"
+                  className="h-[400px] w-full"
+                  isDark={isDark}
                   onMapClick={(lat, lng, zoom) => {
                     setSpotCenter({ lat, lng });
                     setSpotRadiusDeg(getSpotRadiusDeg(zoom));
@@ -743,11 +781,11 @@ export function Match() {
                   }}
                 />
               ) : (
-                <div className={`h-[260px] w-full ${isDark ? 'bg-[#252525]' : 'bg-gray-100'}`} aria-hidden />
+                <div className={`h-[400px] w-full ${isDark ? 'bg-[#252525]' : 'bg-gray-100'}`} aria-hidden />
               )}
-              <p className={`px-3 py-2 text-center text-xs ${isDark ? 'text-[#a0a0a0]' : 'text-gray-500'}`}>
-                Warmer areas = more photos & videos. Tap to see photos.
-              </p>
+              {/* <p className={`px-3 py-2 text-center text-xs ${isDark ? 'text-[#a0a0a0]' : 'text-gray-500'}`}>
+                Warmer areas = more fan activity. Tap to see posts & photos.
+              </p> */}
               <div className={`border-t px-3 pt-2 pb-3 ${isDark ? 'border-[#3a3a3a]' : 'border-gray-200'}`}>
                 <input
                   ref={fileInputRef}
@@ -800,7 +838,85 @@ export function Match() {
                 {locationError && (
                   <p className="mt-1.5 text-center text-[10px] text-[#ef4444]">{locationError}</p>
                 )}
+                <div className="mt-2">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (textPostInput.trim()) {
+                        setTextPostInput('');
+                      }
+                    }}
+                    className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${
+                      isDark
+                        ? 'bg-[#252525] border-[#3a3a3a] focus-within:border-[#22c55e]/50'
+                        : 'bg-white border-gray-200 focus-within:border-[#22c55e]/50'
+                    }`}
+                  >
+                    <MessageCircle className={`h-3.5 w-3.5 shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
+                    <input
+                      type="text"
+                      value={textPostInput}
+                      onChange={(e) => setTextPostInput(e.target.value)}
+                      placeholder="Share what's happening here..."
+                      className={`flex-1 bg-transparent outline-none text-xs placeholder:text-gray-500 ${
+                        isDark ? 'text-white' : 'text-gray-900'
+                      }`}
+                    />
+                    <button
+                      type="submit"
+                      disabled={!textPostInput.trim()}
+                      className={`shrink-0 rounded-full p-1.5 transition-colors ${
+                        textPostInput.trim()
+                          ? 'bg-[#22c55e] text-white hover:bg-[#1ea750]'
+                          : isDark
+                            ? 'bg-[#3a3a3a] text-gray-600'
+                            : 'bg-gray-100 text-gray-300'
+                      }`}
+                    >
+                      <Send className="h-3 w-3" />
+                    </button>
+                  </form>
+                </div>
               </div>
+            </div>
+
+            {/* Fan Reviews */}
+            <div className="mt-6 flex items-center gap-2">
+              <Quote className="h-4 w-4 text-[#22c55e]" />
+              <h2 className={`text-sm font-bold ${isDark ? 'text-[#e0e0e0]' : 'text-gray-900'}`}>Fan Reviews</h2>
+              <span className={`ml-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${isDark ? 'bg-[#22c55e]/20 text-[#22c55e]' : 'bg-green-100 text-green-700'}`}>
+                {fanReviews.length}
+              </span>
+            </div>
+            <div className="mt-2 space-y-2">
+              {fanReviews.map((review) => (
+                <div
+                  key={review.author}
+                  className={`rounded-xl p-3.5 ${isDark ? 'bg-[#2d2d2d]' : 'bg-white border border-gray-200 shadow-sm'}`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold ${isDark ? 'bg-[#22c55e]/20 text-[#22c55e]' : 'bg-green-100 text-green-700'}`}>
+                        {review.author.split(' ').map(w => w[0]).join('')}
+                      </div>
+                      <div>
+                        <p className={`text-xs font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{review.author}</p>
+                        <p className={`text-[10px] ${isDark ? 'text-[#808080]' : 'text-gray-400'}`}>{review.location}</p>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] ${isDark ? 'text-[#808080]' : 'text-gray-400'}`}>{review.daysAgo}d ago</span>
+                  </div>
+                  <div className="flex items-center gap-0.5 mb-1.5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-3 w-3 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : isDark ? 'text-[#3a3a3a]' : 'text-gray-200'}`}
+                      />
+                    ))}
+                  </div>
+                  <p className={`text-xs leading-relaxed ${isDark ? 'text-[#a0a0a0]' : 'text-gray-600'}`}>"{review.text}"</p>
+                </div>
+              ))}
             </div>
 
             {/* Forum posts count */}
@@ -875,7 +991,7 @@ export function Match() {
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <h1 className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Photos in this area</h1>
+            <h1 className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Posts in this area</h1>
             <div className="w-5" />
           </header>
           <div className="flex-1 overflow-auto">
@@ -915,29 +1031,110 @@ export function Match() {
                   return (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
                       <ImageIcon className={`mb-3 h-12 w-12 opacity-60 ${isDark ? 'text-[#606060]' : 'text-gray-300'}`} />
-                      <p className={isDark ? 'text-[#a0a0a0]' : 'text-gray-500'}>No photos posted in this spot yet.</p>
+                      <p className={isDark ? 'text-[#a0a0a0]' : 'text-gray-500'}>No posts in this spot yet.</p>
                     </div>
                   );
                 }
+                const imageUrls = inArea.filter((p) => p.imageUrl).map((p) => p.imageUrl!);
                 return (
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    {inArea.map((post) => (
-                      <div
-                        key={post.id}
-                        className={`aspect-square overflow-hidden rounded-lg ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'}`}
-                      >
-                        <img
-                          src={post.imageUrl}
-                          alt="Fan post"
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    ))}
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
+                    {inArea.map((post) =>
+                      post.imageUrl ? (
+                        <button
+                          key={post.id}
+                          type="button"
+                          onClick={() => {
+                            const idx = imageUrls.indexOf(post.imageUrl!);
+                            setLightboxImages(imageUrls);
+                            setLightboxIndex(idx >= 0 ? idx : 0);
+                          }}
+                          className={`aspect-square overflow-hidden rounded-lg cursor-pointer transition-all hover:opacity-80 hover:ring-2 hover:ring-[#22c55e]/50 ${isDark ? 'bg-[#2d2d2d]' : 'bg-gray-100'}`}
+                        >
+                          <img
+                            src={post.imageUrl}
+                            alt="Fan post"
+                            className="h-full w-full object-cover"
+                          />
+                        </button>
+                      ) : (
+                        <div
+                          key={post.id}
+                          className={`aspect-square overflow-hidden rounded-lg relative ${isDark ? 'bg-gradient-to-br from-[#1e3a2f] to-[#2d2d2d]' : 'bg-gradient-to-br from-green-50 to-white border border-gray-200 shadow-sm'}`}
+                        >
+                          <div className="flex h-full w-full flex-col items-start justify-between p-2.5">
+                            <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${isDark ? 'bg-[#22c55e]/20' : 'bg-green-100'}`}>
+                              <MessageCircle className={`h-3 w-3 ${isDark ? 'text-[#22c55e]' : 'text-green-600'}`} />
+                            </div>
+                            <p className={`text-[10px] leading-snug line-clamp-4 italic ${isDark ? 'text-[#d0d0d0]' : 'text-gray-700'}`}>
+                              &ldquo;{post.text}&rdquo;
+                            </p>
+                            <div className={`self-end text-[8px] font-medium ${isDark ? 'text-[#22c55e]/60' : 'text-green-500/70'}`}>Fan post</div>
+                          </div>
+                        </div>
+                      )
+                    )}
                   </div>
                 );
               })()}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Photo lightbox */}
+      {lightboxImages.length > 0 && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 backdrop-blur-sm"
+          onClick={() => setLightboxImages([])}
+        >
+          {/* Close button */}
+          <button
+            type="button"
+            onClick={() => setLightboxImages([])}
+            className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors z-10"
+            aria-label="Close"
+          >
+            <X className="h-7 w-7" />
+          </button>
+
+          {/* Counter */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/60 text-sm font-medium">
+            {lightboxIndex + 1} / {lightboxImages.length}
+          </div>
+
+          {/* Previous button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+            }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white/80 hover:bg-black/70 hover:text-white transition-colors z-10"
+            aria-label="Previous photo"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+
+          {/* Image */}
+          <img
+            src={lightboxImages[lightboxIndex]}
+            alt="Full-size fan post"
+            className="max-h-[85vh] max-w-[80vw] rounded-xl object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Next button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxIndex((prev) => (prev + 1) % lightboxImages.length);
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white/80 hover:bg-black/70 hover:text-white transition-colors z-10"
+            aria-label="Next photo"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
         </div>
       )}
 
