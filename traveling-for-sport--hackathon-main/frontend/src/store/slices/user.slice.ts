@@ -8,19 +8,19 @@ const initialState: UserState = {
   name: '',
   favoriteTeams: [],
   location: '',
-  isAdult18Plus: undefined
+  isAdult21Plus: undefined
 };
 
 export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<{ id: string; name: string; favoriteTeams?: string[]; location?: string; isAdult18Plus?: boolean }>) => {
+    setUser: (state, action: PayloadAction<{ id: string; name: string; favoriteTeams?: string[]; location?: string; isAdult21Plus?: boolean }>) => {
       state.id = action.payload.id;
       state.name = action.payload.name;
       if (action.payload.favoriteTeams) state.favoriteTeams = action.payload.favoriteTeams;
       if (action.payload.location) state.location = action.payload.location;
-      if (action.payload.isAdult18Plus !== undefined) state.isAdult18Plus = action.payload.isAdult18Plus;
+      if (action.payload.isAdult21Plus !== undefined) state.isAdult21Plus = action.payload.isAdult21Plus;
     },
     updateUserName: (state, action: PayloadAction<string>) => {
       state.name = action.payload;
@@ -31,19 +31,19 @@ export const userSlice = createSlice({
     setLocation: (state, action: PayloadAction<string>) => {
       state.location = action.payload;
     },
-    setIsAdult18Plus: (state, action: PayloadAction<boolean>) => {
-      state.isAdult18Plus = action.payload;
+    setIsAdult21Plus: (state, action: PayloadAction<boolean>) => {
+      state.isAdult21Plus = action.payload;
     },
     resetUser: (state) => {
       state.id = crypto.randomUUID();
       state.name = '';
       state.favoriteTeams = [];
       state.location = '';
-      state.isAdult18Plus = undefined;
+      state.isAdult21Plus = undefined;
     }
   }
 });
 
-export const { setUser, updateUserName, setFavoriteTeams, setLocation, setIsAdult18Plus, resetUser } = userSlice.actions;
+export const { setUser, updateUserName, setFavoriteTeams, setLocation, setIsAdult21Plus, resetUser } = userSlice.actions;
 
 export default userSlice.reducer;

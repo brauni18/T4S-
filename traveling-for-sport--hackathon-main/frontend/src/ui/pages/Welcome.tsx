@@ -1,6 +1,6 @@
 import { Button } from '@/shadcn/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setLocation, setFavoriteTeams, setIsAdult18Plus } from '@/store/slices/user.slice';
+import { setLocation, setFavoriteTeams, setIsAdult21Plus } from '@/store/slices/user.slice';
 import { Globe, User } from 'lucide-react';
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router';
@@ -70,7 +70,7 @@ export function Welcome() {
   const savedTeams = useAppSelector((s) => s.user.favoriteTeams);
   const [country, setCountry] = useState('');
   const [favoriteTeams, setFavoriteTeamsState] = useState<string[]>([]);
-  const [isAdult18Plus, setIsAdult18PlusLocal] = useState<boolean | null>(null);
+  const [isAdult21Plus, setIsAdult21PlusLocal] = useState<boolean | null>(null);
 
   if (savedTeams.length > 0) {
     return <Navigate to="/home" replace />;
@@ -87,14 +87,14 @@ export function Welcome() {
   };
 
   const handleContinue = () => {
-    if (!country || favoriteTeams.length === 0 || isAdult18Plus === null) return;
+    if (!country || favoriteTeams.length === 0 || isAdult21Plus === null) return;
     dispatch(setLocation(country));
     dispatch(setFavoriteTeams(favoriteTeams));
-    dispatch(setIsAdult18Plus(isAdult18Plus));
+    dispatch(setIsAdult21Plus(isAdult21Plus));
     navigate('/home');
   };
 
-  const canContinue = country && favoriteTeams.length > 0 && isAdult18Plus !== null;
+  const canContinue = country && favoriteTeams.length > 0 && isAdult21Plus !== null;
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white flex flex-col">
@@ -218,28 +218,28 @@ export function Welcome() {
             {/* Question 3: Age - Two selection buttons */}
             <div>
               <label className="block text-white font-semibold text-lg mb-4">
-                3. Are you 18 or older?
+                3. Are you 21 or older?
               </label>
               <div className="flex gap-4">
                 <button
                   type="button"
-                  onClick={() => setIsAdult18PlusLocal(false)}
+                  onClick={() => setIsAdult21PlusLocal(false)}
                   className={`
                     flex-1 py-3.5 px-4 rounded-xl font-medium transition-all
-                    ${isAdult18Plus === false ? 'bg-[#22c55e] text-black' : 'bg-[#1a1a1a] text-gray-400 border border-white/15 hover:border-[#22c55e]/50'}
+                    ${isAdult21Plus === false ? 'bg-[#22c55e] text-black' : 'bg-[#1a1a1a] text-gray-400 border border-white/15 hover:border-[#22c55e]/50'}
                   `}
                 >
-                  18-
+                  21-
                 </button>
                 <button
                   type="button"
-                  onClick={() => setIsAdult18PlusLocal(true)}
+                  onClick={() => setIsAdult21PlusLocal(true)}
                   className={`
                     flex-1 py-3.5 px-4 rounded-xl font-medium transition-all
-                    ${isAdult18Plus === true ? 'bg-[#22c55e] text-black' : 'bg-[#1a1a1a] text-gray-400 border border-white/15 hover:border-[#22c55e]/50'}
+                    ${isAdult21Plus === true ? 'bg-[#22c55e] text-black' : 'bg-[#1a1a1a] text-gray-400 border border-white/15 hover:border-[#22c55e]/50'}
                   `}
                 >
-                  18+
+                  21+
                 </button>
               </div>
             </div>
